@@ -4,8 +4,14 @@ IDENTIFIER LETTER[LETTER|0-9]*
 
 CONSTANTS
 INTEGER [0-9]+
-FLOAT-POINT [[0-9][E|e][\+|\-]{0-1}[0-9]+ | [0-9]*] \.[0-9]$
-*/
+FLOAT-POINT (([0-9]+|[0-9]+\.|([0-9]+\.[0-9]+|\.[0-9]+))([Ee][+-]?[0-9]+)|([0-9]+\.[0-9]+|\.[0-9]+)|[0-9]+\.)
+STRING '([^\n']|'')*'
+IDENTIFIERS [A-Za-z_]+[[A-Za-z_0-9]*
+
+
+            */
+
+
 
 %{
 
@@ -145,6 +151,15 @@ DIGIT [0-9]
                             column += yyleng;
                             return T_NOTEQ;
                          }
+
+"[0-9]+"                {
+                            yylloc.first_line = yylineno;
+                            yylloc.first_column = column;
+                            column += yyleng;
+                            yyval.ival = yytext;
+                            return T_INTNUM;
+                        }
+
 
 
 of                       {
