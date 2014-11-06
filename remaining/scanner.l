@@ -1,3 +1,12 @@
+/*
+LETTER [A-Z|a-z|_]
+IDENTIFIER LETTER[LETTER|0-9]*
+
+CONSTANTS
+INTEGER [0-9]+
+FLOAT-POINT [[0-9][E|e][\+|\-]{0-1}[0-9]+ | [0-9]*] \.[0-9]$
+*/
+
 %{
 
 #include <stdlib.h>
