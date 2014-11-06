@@ -156,7 +156,7 @@ DIGIT [0-9]
                             yylloc.first_line = yylineno;
                             yylloc.first_column = column;
                             column += yyleng;
-                            yyval.ival = yytext;
+                            yylval.ival = stoi(yytext);
                             return T_INTNUM;
                         }
 
