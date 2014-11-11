@@ -1,15 +1,3 @@
-/*
-
-'([^\n']|'')*'          {
-                                 yylloc.first_line = yylineno;
-                                 yylloc.first_column = column;
-                                 column += yyleng;
-                                 yylval.str = sym_tab->pool_install(sym_tab->fix_string(yytext));
-                                 return T_STRINGCONST;
-                       
-
-                        }
-*/
 
 %{
 
@@ -37,7 +25,7 @@ extern YYLTYPE yylloc; // Used for position information, see below.
 
 %x c_comment
 %x c_comment2
-%x c_string
+
 DIGIT [0-9]
 /* {DIGIT}+"."{DIGIT}*
  ID [a-z][a-z0-9]* */
@@ -349,11 +337,18 @@ procedure                {
                                  yylloc.first_line = yylineno;
                                  yylloc.first_column = column;
                                  column += yyleng;
-                                 yylval.pool_p = sym_tab->pool_install(yytext);
+                                 yylval.pool_p = sym_tab->pool_install(sym_tab->capitalize(yytext));
                                  return T_IDENT;
-                         }
+                      }
 
-'([^\n']|'')*'          {
+
+'([^']|'')*[\n|\r]    {
+                                 column = 0;
+                                 yyerror("Newline in String");
+
+                      }
+
+'([^\n']|'')*'        {
                                  yylloc.first_line = yylineno;
                                  yylloc.first_column = column;
                                  column += yyleng;
@@ -361,20 +356,16 @@ procedure                {
                                  return T_STRINGCONST;
                        
 
-                        }
-
-'([^']|'')*\n          {
-                                 yyerror("mad?");
-
-                        }
-
-[\t|\r| ]                    {
-                            yylloc.first_line = yylineno;
-                            yylloc.first_column = column;
-                            column += yyleng;
                       }
 
- 
 
-<<EOF>>                  yyterminate();
+[\t| ]                {  
+                            column += 1;
+                      }
+[\r|\n]               {
+                            column = 0;
+                      }                             
+
 .                        yyerror("Illegal character");
+<<EOF>>                  yyterminate();
+
