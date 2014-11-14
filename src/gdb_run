@@ -1,0 +1,5 @@
+gdb ./symtab
+r (run)
+bt (backtrack)
+up
+down
