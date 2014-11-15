@@ -531,17 +531,18 @@ sym_index symbol_table::current_environment()
 /* Increase the current_level by one. */
 void symbol_table::open_scope()
 {
-  printf("open_scope()");
-    /* Your code here */
+  current_level++;
+  block_table[current_level] = sym_pos;
+
 }
 
 
 /* Decrease the current_level by one. Return sym_index to new environment. */
 sym_index symbol_table::close_scope()
 {
-  printf("close_scope()");
-    /* Your code here */
-    return NULL_SYM;
+  //  cout << "close_scope()" << endl;
+  current_level--;
+  return block_table[current_level];
 }
 
 
@@ -552,16 +553,18 @@ sym_index symbol_table::close_scope()
    follows hash links outwards. */
 sym_index symbol_table::lookup_symbol(const pool_index pool_p)
 {    
-  cout << "lookup_symbol()" << endl;
+  //cout << "lookup_symbol()" << endl;
   /* Your code here */
   hash_index hi = hash(pool_p);
   sym_index curr_link = hash_table[hi];
   while(curr_link != NULL_SYM) {
+    //    cout << "hej" << endl;
     if(pool_compare((sym_table[curr_link])->id, pool_p)) {
       return curr_link;
     }
     curr_link = (sym_table[curr_link]->hash_link);
   }
+  //cout << "out" << endl;
   return NULL_SYM;
 }
 
@@ -651,48 +654,77 @@ void symbol_table::set_symbol_type(const sym_index sym_p,
 sym_index symbol_table::install_symbol(const pool_index pool_p,
                                        const sym_type tag)
 {
-  printf("install_symbol\n");
+  //cout << "install_symbol()" << endl;
+
   sym_index sym_p = lookup_symbol(pool_p);
-  printf("after lookup");
-  if(sym_p == NULL_SYM) {
-    printf("Symbol not in symbol_table yet");
-    hash_index hi = hash(pool_p);
-    hash_table[hi] = sym_pos;
-    if(tag == SYM_VAR) {
-      printf("SYM_VAR");
-      //enter_variable();
-    }
-    else {
-      printf("NOT SYM_VAR");
-    }
-    return sym_pos;
+  if (sym_p >= current_environment()){
+    return sym_p;
   }
-  else {
-    printf("KROCK!");
-    }
-  /*
-    sym_pos sym_p = hash_table[hi];
-    switch(tag){
-    case sym_type.SYM_ARRAY :
+  //cout << "after your mamma" << endl;
+  symbol* sym;
+  //cout << "Symbol not in symbol_table yet" << endl;
+  sym_pos++;
+  switch(tag) {
+  case SYM_ARRAY :
+    //cout << "got SYM_ARRAY" << endl;
+    sym = new array_symbol(pool_p);
+    break;
+  case SYM_PROC:
+    sym = new procedure_symbol(pool_p);
+    //cout << "got SYM_PROC" << endl;
+    break;
+  case SYM_FUNC :
+    sym = new function_symbol(pool_p);
+    //cout << "got SYM_FUNC" << endl;
     //DO SOMETHING
     break;
-    case sym_type.SYM_FUNC :
-    //DO SOMETHING
-    break;
-    case sym_type.SYM_VAR :
-    printf("got var");
+  case SYM_VAR :
+    sym = new variable_symbol(pool_p);      
+    //cout << "got SYM_VAR" << endl;
     //Check if name exist in symbol_table
-    pool_compare
+    //pool_compare
     //DODO
     break;
-    default:
+  case SYM_PARAM :
+    sym = new parameter_symbol(pool_p);
+    //cout << "got SYM_PARAM" << endl;
+    //Check if name exist in symbol_table
+    //pool_compare
+    //DODO
+    break;
+  case SYM_CONST :
+    sym = new constant_symbol(pool_p);
+    //cout << "got SYM_CONST" << endl;
+    //Check if name exist in symbol_table
+    //pool_compare
+    //DODO
+    break;
+  case SYM_NAMETYPE :
+    sym = new nametype_symbol(pool_p);
+    //cout << "got SYM_NAMETYPE" << endl;
+    //Check if name exist in symbol_table
+    //pool_compare
+    //DODO
+    break;
+  case SYM_UNDEF :
+    return NULL_SYM;
+    //cout << "got SYM_UNDEF" << endl;
+    //Check if name exist in symbol_table
+    //pool_compare
+    //DODO
+    break;
+  default:
+    cout << "SHOULD NOT BE HERE - Bagarns mamma" << endl;
     //DO SOMETHING
-    }
-    if(tag == symbol_types.SYM_ARRAY) {
-    }*/
-  //hash_table[hi] = *get_symbol(sym_pos)
-    /* Your code here */
-    return 0; // Return index to the symbol we just created.
+  }
+  hash_index hi = hash(pool_p);
+  sym_index tmp = hash_table[hi];
+  sym->hash_link = tmp;
+  sym->level = current_level;   
+  hash_table[hi] = sym_pos;
+  sym_table[sym_pos] = sym;
+  return sym_pos;
+//return 0; // Return index to the symbol we just created.
 }
 
 /* Enter a constant into the symbol table. The value is an integer. The type
@@ -937,7 +969,6 @@ sym_index symbol_table::enter_procedure(position_information *pos,
                                         const pool_index pool_p)
 {
   /* OUR CODE */
-  cout << "enter_procedure" << endl;
   sym_index sym_p = install_symbol(pool_p, SYM_PROC);
   procedure_symbol *proc = sym_table[sym_p]->get_procedure_symbol();
 
