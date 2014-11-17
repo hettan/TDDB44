@@ -541,6 +541,13 @@ void symbol_table::open_scope()
 sym_index symbol_table::close_scope()
 {
   //  cout << "close_scope()" << endl;
+  sym_index next = current_environment();
+  while(next <= sym_pos) {
+    sym_index hash_link = sym_table[next]->hash_link;
+    hash_table[sym_table[next]->back_link] = hash_link;
+    (sym_table[next]->hash_link) = NULL_SYM;
+    next++;
+  }
   current_level--;
   return block_table[current_level];
 }
@@ -718,11 +725,13 @@ sym_index symbol_table::install_symbol(const pool_index pool_p,
     //DO SOMETHING
   }
   hash_index hi = hash(pool_p);
-  sym_index tmp = hash_table[hi];
-  sym->hash_link = tmp;
+  sym->back_link = hi;
+  sym->hash_link = hash_table[hi];
   sym->level = current_level;   
+
   hash_table[hi] = sym_pos;
   sym_table[sym_pos] = sym;
+ 
   return sym_pos;
 //return 0; // Return index to the symbol we just created.
 }
@@ -975,6 +984,10 @@ sym_index symbol_table::enter_procedure(position_information *pos,
   if(proc->tag != SYM_UNDEF) {
     type_error(pos) << "Redeclaration: " << proc << endl;
     return sym_p;
+  }
+
+  if(current_level >= 0) {
+    set_symbol_type(sym_p, void_type);
   }
 
   proc->tag = SYM_PROC;
