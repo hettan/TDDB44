@@ -1,5 +1,0 @@
-An AST will be printed for each block.
-No type checking will be performed.
-No optimization will be done.
-No quads will be generated.
-Error: line 10: syntax error
