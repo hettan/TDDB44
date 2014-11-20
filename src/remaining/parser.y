@@ -172,21 +172,27 @@ program         : prog_decl subprog_part comp_stmt T_DOT
 
 prog_decl       : prog_head T_SEMICOLON const_part variable_part
                 {
-                    $$ = $1;
+		  $$ = $1;
                 }
                 ;
 
 
 prog_head       : T_PROGRAM T_IDENT
                 {
-                    /* Your code here */
-                    sym_tab->open_scope();
-		    position_information *pos =
-		      new position_information(@1.first_line,
-					       @1.first_column);
-		    //Kanske göra lookup på T_intent och lägga in i ast_id???
-		    sym_index sym = sym_tab->lookup_symbol($2);
-		    $$ = new ast_procedurehead(pos, sym); 
+		  position_information *pos =
+		    new position_information(@1.first_line,
+					     @1.first_column);
+		  // We add the function id to the symbol table.
+		  sym_index proc_loc = sym_tab->enter_procedure(pos,
+								$2);
+		  // Open a new scope.
+		  sym_tab->open_scope();
+		  // This AST node is just a temporary node which we create
+		  // here in order to be able to provide the symbol table
+		  // index for the procedure to the proc_decl production
+		  // above. It's needed for code generation.
+		  $$ = new ast_procedurehead(pos,
+					     proc_loc);;
                 }
                 ;
 
@@ -237,11 +243,19 @@ const_decl      : T_IDENT T_EQ integer T_SEMICOLON
 		  position_information *pos =
 		    new position_information(@1.first_line,
 					     @1.first_column);
-		  sym_index type = sym_tab->get_symbol_type($3->sym_p);
 		  symbol* sym  = sym_tab->get_symbol($3->sym_p);
-		  constant_symbol* con = sym->get_constant_symbol();
-		  sym_tab->enter_constant(pos, $1, type, con->const_value.ival);
-                }
+		  if (sym == NULL || sym->tag != SYM_CONST) {
+		    type_error(pos) << "bad index in const declaration: " << yytext << endl << flush;
+		  }
+		  else {
+		    constant_symbol* con = sym->get_constant_symbol();
+		    if(con->type == integer_type) 
+		      sym_tab->enter_constant(pos, $1, con->type, con->const_value.ival);
+		    
+		    if(con->type == real_type) 
+		      sym_tab->enter_constant(pos, $1, con->type, con->const_value.rval);
+		  }
+		}
                 
                 ;
 
@@ -447,6 +461,7 @@ proc_decl       : proc_head opt_param_list T_SEMICOLON const_part variable_part
 func_decl       : func_head opt_param_list T_COLON type_id T_SEMICOLON const_part variable_part
                 {
                     /* Your code here */
+		  sym_tab->set_symbol_type($1->sym_p, $4->sym_p);
 		  $$ = $1;
                 }
                 ;
@@ -480,6 +495,7 @@ func_head       : T_FUNCTION T_IDENT
                     // We add the function id to the symbol table.
                     sym_index func_loc = sym_tab->enter_function(pos,
                                                                  $2);
+		    cout << "adding" << func_loc << endl;
                     // Open a new scope.
                     sym_tab->open_scope();
 
@@ -497,11 +513,7 @@ func_head       : T_FUNCTION T_IDENT
 opt_param_list  : T_LEFTPAR param_list T_RIGHTPAR
                 {
                     /* Your code here */
-		  position_information *pos =
-		    new position_information(@1.first_line,
-					     @1.first_column);
-		  $$ = new ast_expr_list(pos, NULL);
-		  
+		  $$ = $2;
 		}
                 | T_LEFTPAR error T_RIGHTPAR
                 {
@@ -509,13 +521,7 @@ opt_param_list  : T_LEFTPAR param_list T_RIGHTPAR
                 }
                 | /* empty */
                 {
-                    /* Your code here */
-		  /*position_information *pos =
-		    new position_information(
-					     @1.first_line,
-					     @1.first_column);
-		  $$ = new ast_expr_list(pos, NULL);
-		  */
+		  $$ = NULL;
 		}
                 ;
 
@@ -560,13 +566,17 @@ comp_stmt       : T_BEGIN stmt_list T_END
 
 stmt_list       : stmt
                 {
-                    /* Your code here */
+		  /* Your code here */
 		  position_information *pos =
 		    new position_information(
 					     @1.first_line,
 					     @1.first_column);
-		  $$ = new ast_stmt_list(pos, $1);
-		
+		  if ($1 == NULL){
+		    $$ = NULL;
+		  }
+		  else{
+		    $$ = new ast_stmt_list(pos, $1);
+		  }
                 }
                 | stmt_list T_SEMICOLON stmt
                 {
@@ -575,7 +585,13 @@ stmt_list       : stmt
 		    new position_information(
 					     @1.first_line,
 					     @1.first_column);
-		  $$ = new ast_stmt_list(pos, $3, $1); 		
+		  
+		  if($3 == NULL) {
+		    $$ = $1;
+		  }
+		  else{
+		    $$ = new ast_stmt_list(pos, $3, $1);
+		  }
                 }
                 ;
 
@@ -600,7 +616,7 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                 }
                 | proc_id T_LEFTPAR opt_expr_list T_RIGHTPAR
                 {
-                    /* Your code here */
+		  /* Your code here */
 		  position_information *pos =
 		    new position_information(@1.first_line,
 					     @1.first_column);
@@ -618,7 +634,7 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                 }
                 | T_RETURN expr
                 {
-                    /* Your code here */
+		  /* Your code here */
 		  position_information *pos =
 		    new position_information(@1.first_line,
 					     @1.first_column);
@@ -627,7 +643,7 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                 }
                 | T_RETURN
                 {
-                    /* Your code here */
+		  /* Your code here */
 		  position_information *pos =
 		    new position_information(@1.first_line,
 					     @1.first_column);
@@ -637,13 +653,8 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                 
                 | /* empty */
                 {
-		  /*
-		  position_information *pos =
-		    new position_information(@1.first_line,
-					     @1.first_column);
-		  $$ = new ast_stmt(pos);
-		  */
-                    /* Your code here */
+		  $$ = NULL;
+		  /* Your code here */
                 }
                 ;
 
@@ -675,9 +686,7 @@ rvariable       : rvar_id
 		  $$ = new ast_indexed($1->pos,
 				       $1,
 				       $3);
-		
-                }
-                
+		}
                 ;
 
 
@@ -692,12 +701,7 @@ elsif_list      : elsif_list elsif
                 }
                 | /* empty */
                 {
-                    /* Your code here */
-		  /*position_information *pos =
-		    new position_information(@1.first_line,
-		    @1.first_column);
-		  $$ = new ast_elsif_list(pos, NULL);
-		  */
+		  $$ = NULL;
                 }
                 ;
 
@@ -721,11 +725,7 @@ else_part       : T_ELSE stmt_list
 		}
                 | /* empty */
                 {
-                    /* Your code here */
-		  /*position_information *pos =
-		    new position_information(@1.first_line,
-		    @1.first_column);
-		    $$ = new ast_stmt_list(pos, NULL);*/
+		  $$ = NULL;
 		}
                 ;
 
@@ -737,14 +737,7 @@ opt_expr_list   : expr_list
                 }
                 | /* empty */
                 {
-		  
-                    /* Your code here */
-		  /*
-		  position_information *pos =
-		    new position_information(@1.first_line,
-					     @1.first_column);
-		  $$ = new ast_expr_list(pos, NULL);
-		  */
+		  $$ = NULL;
 		}
                 ;
 
@@ -870,6 +863,7 @@ simple_expr     : term
 
 term            : factor
                 {
+		  
 		  /* Your code here */
 		  $$ = $1;
                 }
@@ -921,7 +915,7 @@ term            : factor
 
 factor          : rvariable
                 {
-                    $$ = $1;
+		  $$ = $1;
                 }
                 | func_call
                 {
@@ -1068,9 +1062,10 @@ proc_id         : id
 
 func_id         : id
                 {
+		  cout << "getting func_id " << $1->sym_p << endl;
                     // Make sure this id is really declared as a function.
                     // debug() << "func_id -> id: " << $1->sym_p << endl;
-                    if (sym_tab->get_symbol_tag($1->sym_p) != SYM_FUNC) {
+		  if (sym_tab->get_symbol_tag($1->sym_p) != SYM_FUNC) {
                         type_error($1->pos) << "not declared "
                                             << "as function: "
                                             << yytext << endl << flush;
