@@ -256,7 +256,10 @@ const_decl      : T_IDENT T_EQ integer T_SEMICOLON
 		      sym_tab->enter_constant(pos, $1, con->type, con->const_value.rval);
 		  }
 		}
-                
+                | T_IDENT T_EQ error T_SEMICOLON                
+		| T_IDENT T_EQ real error
+		| T_IDENT T_EQ integer error
+		| T_IDENT T_EQ const_id error
                 ;
 
 
@@ -495,7 +498,6 @@ func_head       : T_FUNCTION T_IDENT
                     // We add the function id to the symbol table.
                     sym_index func_loc = sym_tab->enter_function(pos,
                                                                  $2);
-		    cout << "adding" << func_loc << endl;
                     // Open a new scope.
                     sym_tab->open_scope();
 
@@ -603,7 +605,11 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
 		    new position_information(@1.first_line,
 					     @1.first_column);
 		  $$ = new ast_if(pos, $2, $4, $5, $6);
-		
+		  
+		}
+                | T_IF error T_THEN stmt_list elsif_list else_part T_END
+		{
+		  $$ = NULL;
 		}
                 | T_WHILE expr T_DO stmt_list T_END
                 {
@@ -614,6 +620,18 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
 		  $$ = new ast_while(pos, $2, $4);
 		
                 }
+                | T_WHILE expr T_DO error T_END
+                {
+		  $$ = NULL;
+		}
+                | T_WHILE error T_DO stmt_list T_END
+                {
+		  $$ = NULL;
+		}
+                | T_WHILE error T_DO error T_END
+                {
+		  $$ = NULL;
+		}
                 | proc_id T_LEFTPAR opt_expr_list T_RIGHTPAR
                 {
 		  /* Your code here */
@@ -623,6 +641,10 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
 		  $$ = new ast_procedurecall(pos, $1, $3);
 		
                 }
+                | proc_id T_LEFTPAR error T_RIGHTPAR
+                {
+		  $$ = NULL;
+		}
                 | lvariable T_ASSIGN expr
                 {
                     /* Your code here */
@@ -632,6 +654,10 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
 		  $$ = new ast_assign(pos, $1, $3);
 		
                 }
+                | lvariable T_ASSIGN error
+                {
+		  $$ = NULL;
+		}
                 | T_RETURN expr
                 {
 		  /* Your code here */
@@ -640,6 +666,10 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
 					     @1.first_column);
 		  $$ = new ast_return(pos, $2);
 		
+                }
+                | T_RETURN error
+                {
+		  $$ = NULL;
                 }
                 | T_RETURN
                 {
@@ -660,7 +690,7 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
 
 lvariable       : lvar_id
                 {
-                    $$ = $1;
+		  $$ = $1;
                 }
                 | array_id T_LEFTBRACKET expr T_RIGHTBRACKET
                 {
@@ -687,6 +717,10 @@ rvariable       : rvar_id
 				       $1,
 				       $3);
 		}
+                | array_id T_LEFTBRACKET error T_RIGHTBRACKET
+                {
+		  $$ = NULL;
+                }
                 ;
 
 
@@ -830,7 +864,7 @@ simple_expr     : term
 					     @1.first_column);
 		  $$ = new ast_uminus(pos, $2);
                 
-		}
+	}
                 | simple_expr T_OR term
                 {
                     /* Your code here */
@@ -846,7 +880,7 @@ simple_expr     : term
                   position_information *pos =
 		    new position_information(@1.first_line,
 					     @1.first_column);
-		  $$ = new ast_and(pos, $1, $3);
+		  $$ = new ast_add(pos, $1, $3);
                 
 		}
                 | simple_expr T_SUB term
@@ -919,7 +953,7 @@ factor          : rvariable
                 }
                 | func_call
                 {
-                    $$ = $1;
+		  $$ = $1;
                 }
                 | integer
                 {
@@ -1062,9 +1096,8 @@ proc_id         : id
 
 func_id         : id
                 {
-		  cout << "getting func_id " << $1->sym_p << endl;
-                    // Make sure this id is really declared as a function.
-                    // debug() << "func_id -> id: " << $1->sym_p << endl;
+		  // Make sure this id is really declared as a function.
+		  // debug() << "func_id -> id: " << $1->sym_p << endl;
 		  if (sym_tab->get_symbol_tag($1->sym_p) != SYM_FUNC) {
                         type_error($1->pos) << "not declared "
                                             << "as function: "
@@ -1091,6 +1124,7 @@ array_id        : id
 
 id              : T_IDENT
                 {
+		  
                     sym_index sym_p;    // Used to find previous use of symbol.
                     position_information *pos =
                         new position_information(@1.first_line,
@@ -1098,7 +1132,8 @@ id              : T_IDENT
 
                     // Make sure the symbol was declared before it is used.
                     sym_p = sym_tab->lookup_symbol($1);
-                    // debug() << "id -> T_IDENT: " << sym_p << " "
+		 
+		    // debug() << "id -> T_IDENT: " << sym_p << " "
                     //            << sym_tab->pool_lookup($1) << endl;
                     if (sym_p == NULL_SYM) {
                         type_error(pos) << "not declared: "

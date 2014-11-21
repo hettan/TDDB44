@@ -543,8 +543,9 @@ void symbol_table::open_scope()
 /* Decrease the current_level by one. Return sym_index to new environment. */
 sym_index symbol_table::close_scope()
 {
+  
   sym_index next = current_environment();
-  while(next <= sym_pos) {
+  while(next >= sym_pos) {
     sym_index hash_link = sym_table[next]->hash_link;
     hash_table[sym_table[next]->back_link] = hash_link;
     (sym_table[next]->hash_link) = NULL_SYM;
@@ -562,8 +563,8 @@ sym_index symbol_table::close_scope()
    follows hash links outwards. */
 sym_index symbol_table::lookup_symbol(const pool_index pool_p)
 {    
-  //cout << "lookup_symbol()" << endl;
   /* Your code here */
+  
   hash_index hi = hash(pool_p);
   sym_index curr_link = hash_table[hi];
   while(curr_link != NULL_SYM) {
@@ -701,6 +702,7 @@ sym_index symbol_table::install_symbol(const pool_index pool_p,
   sym_pos++;
 
   hash_index hi = hash(pool_p);
+
   sym->back_link = hi;
   sym->hash_link = hash_table[hi];
   sym->level = current_level;   
