@@ -341,26 +341,35 @@ sym_index ast_return::type_check()
 sym_index ast_functioncall::type_check()
 {
     /* Your code here */
-    return void_type;
+  parameter_list->type_check();
+  return void_type;
 }
 
 sym_index ast_uminus::type_check()
 {
-    /* Your code here */
-    return void_type;
+  /* Your code here */
+  expr->type_check();
+  return void_type;
 }
 
 sym_index ast_not::type_check()
 {
     /* Your code here */
-    return void_type;
+  if(expr->type_check() != integer_type) {
+    type_error(pos) << "Operand need to be of integer type.\n";
+  }
+  return void_type;
 }
 
 
 sym_index ast_elsif::type_check()
 {
-    /* Your code here */
-    return void_type;
+  /* Your code here */
+  if(condition->type_check() != integer_type) {
+    type_error(pos) << "Condition need to be of integer type.\n";
+  }
+  body->type_check();
+  return void_type;
 }
 
 
