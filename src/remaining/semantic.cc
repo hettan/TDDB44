@@ -42,16 +42,46 @@ bool semantic::chk_param(ast_id *env,
                         parameter_symbol *formals,
                         ast_expr_list *actuals)
 {
-    /* Your code here */
+  if (formals == NULL && actuals == NULL){
     return true;
+  }
+  else if (formals == NULL || actuals == NULL){
+    return false;
+  }
+  else{
+    if(formals->type == actuals->last_expr->type){  
+      return chk_param(env,formals->preceding,actuals->preceding);
+    }
+    else{
+      return false;
+    }
+  }
 }
-
+  
 
 /* Check formal vs. actual parameters at procedure/function calls. */
 void semantic::check_parameters(ast_id *call_id,
                                 ast_expr_list *param_list)
 {
     /* Your code here */
+  symbol* sym = sym_tab->get_symbol(call_id->sym_p);
+  if (sym->tag == SYM_FUNC){
+    function_symbol* f_sym = sym->get_function_symbol(); 
+    parameter_symbol* formals = f_sym->last_parameter;
+    if(!chk_param(call_id, formals, param_list)) {
+      type_error(call_id->pos) << "argument type error in procedure call" << endl;
+    }
+  }
+  else if (sym->tag == SYM_PROC){
+    procedure_symbol* p_sym = sym->get_procedure_symbol(); 
+    parameter_symbol* formals = p_sym->last_parameter;
+    if(!chk_param(call_id, formals, param_list)) {
+      type_error(call_id->pos) << "argument type error in procedure call" << endl;
+    }
+  }
+  else{
+    cout << "Something went wrong " << endl;
+  }
 }
 
 
@@ -114,7 +144,13 @@ sym_index ast_stmt_list::type_check()
 /* Type check a list of expressions. */
 sym_index ast_expr_list::type_check()
 {
-    /* Your code here */
+    /* Your code here*/
+    if (preceding != NULL) {
+        preceding->type_check();
+    }
+    if (last_expr != NULL) {
+        last_expr->type_check();
+    }
     return void_type;
 }
 
@@ -262,14 +298,19 @@ sym_index ast_greaterthan::type_check()
 sym_index ast_procedurecall::type_check()
 {
     /* Your code here */
-    return void_type;
+  type_checker->check_parameters(id, parameter_list);
+  return void_type;
 }
 
 
 sym_index ast_assign::type_check()
 {
     /* Your code here */
-    return void_type;
+  symbol* sym = sym_tab->get_symbol(lhs->sym_p);
+  if (!sym->type == rhs->type) {
+    type_error(pos) << "Can't assign value not of the same type \n";
+  }
+  return void_type;
 }
 
 
@@ -290,7 +331,17 @@ sym_index ast_while::type_check()
 sym_index ast_if::type_check()
 {
     /* Your code here */
-    return void_type;
+  if (!condition->type == integer_type){
+    type_error(pos) << "Condition of if statement must be of integer type \n";
+  }
+  body->type_check();
+  if (elsif_list != NULL){ 
+    elsif_list->type_check();
+  }
+  if (else_body != NULL){ 
+    else_body->type_check();
+  }
+  return void_type;
 }
 
 
@@ -341,8 +392,11 @@ sym_index ast_return::type_check()
 sym_index ast_functioncall::type_check()
 {
     /* Your code here */
-  parameter_list->type_check();
-  return void_type;
+  //parameter_list->type_check();
+  cout << "Enter ast_functioncall" << endl;
+  type_checker->check_parameters(id, parameter_list);
+  symbol* sym = sym_tab->get_symbol(id->sym_p);
+  return sym->type;
 }
 
 sym_index ast_uminus::type_check()
