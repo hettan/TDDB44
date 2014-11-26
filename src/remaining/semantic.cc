@@ -69,12 +69,15 @@ void semantic::check_parameters(ast_id *call_id,
     function_symbol* f_sym = sym->get_function_symbol(); 
     parameter_symbol* formals = f_sym->last_parameter;
     if(!chk_param(call_id, formals, param_list)) {
-      type_error(call_id->pos) << "argument type error in procedure call" << endl;
+      type_error(call_id->pos) << "argument type error in function call" << endl;
     }
   }
   else if (sym->tag == SYM_PROC){
     procedure_symbol* p_sym = sym->get_procedure_symbol(); 
     parameter_symbol* formals = p_sym->last_parameter;
+    if(param_list != NULL) {
+      param_list->type_check();
+    }
     if(!chk_param(call_id, formals, param_list)) {
       type_error(call_id->pos) << "argument type error in procedure call" << endl;
     }
@@ -159,10 +162,13 @@ sym_index ast_expr_list::type_check()
 /* Type check an elsif list. */
 sym_index ast_elsif_list::type_check()
 {
-  if (condition->type_check() != integer_type) {
-    type_error(pos) << "condition must be of integer type\n";
+  if (preceding != NULL) {
+    preceding->type_check();
   }
-  body->type_check();
+  if (last_elsif != NULL) {
+    last_elsif->type_check();
+  }
+
   /* Your code here */
   return void_type;
 }
@@ -183,7 +189,7 @@ sym_index ast_id::type_check()
 sym_index ast_indexed::type_check()
 {
     /* Your code here */
-  int index_type = index->type_check();
+  sym_index index_type = index->type_check();
   if (index_type != integer_type) {
     type_error(pos) << "Only integer is allowed as index in array\n";
   }
@@ -198,20 +204,23 @@ sym_index ast_indexed::type_check()
    multiplication. We synthesize type information as well. */
 sym_index semantic::check_binop1(ast_binaryoperation *node)
 {
-    /* Your code here */
-  int left_type = node->left->type_check();
-  int right_type = node->right->type_check();
+    /* Your code here */ 
+  sym_index left_type = node->left->type_check();
+  sym_index right_type = node->right->type_check();
+
   if(left_type != right_type) {
     if(left_type == integer_type) {
-      node->left = new ast_cast(node->pos, node->left);
+      node->left = new ast_cast(node->left->pos, node->left);
+      node->type = real_type;
       return real_type;
     }
     else {
-      node->right = new ast_cast(node->pos, node->right);
+      node->right = new ast_cast(node->right->pos, node->right);
+      node->type = real_type;
       return real_type;
     }
   }
-  //node->type = left_type;
+  node->type = left_type;
   return left_type;
 }
 
@@ -238,15 +247,17 @@ sym_index ast_mult::type_check()
 sym_index ast_divide::type_check()
 {
     /* Your code here */
-  int left_type = left->type_check();
-  int right_type = right->type_check();
+  sym_index left_type = left->type_check();
+  sym_index right_type = right->type_check();
+  
   if(left_type == integer_type) {
-    left = new ast_cast(pos, left);
+    left = new ast_cast(left->pos, left);
   }
   if(right_type == integer_type) {
-    right = new ast_cast(pos, right);
+    right = new ast_cast(right->pos, right);
   }
-   
+  type = real_type;
+
   return real_type;
 }
 
@@ -264,17 +275,18 @@ sym_index semantic::check_binop2(ast_binaryoperation *node, string s)
   int left_type = node->left->type_check();
   int right_type = node->right->type_check();
   if(left_type != integer_type) {
-    type_error(node->pos) << "Type must be integer in left-side value of operation " << s << "\n";
+    type_error(node->left->pos) << "Type must be integer in left-side value of operation " << s << "\n";
   }
   if(right_type != integer_type) {
-    type_error(node->pos) << "Type must be integer in right-side value of operation " << s << "\n";
+    type_error(node->right->pos) << "Type must be integer in right-side value of operation " << s << "\n";
   }
+  node->type = integer_type;
   return integer_type;
 }
 
 sym_index ast_or::type_check()
 {
-    /* Your code here */
+  /* Your code here */
   return type_checker->check_binop2(this, "OR");
 }
 
@@ -303,17 +315,17 @@ sym_index ast_mod::type_check()
 sym_index semantic::check_binrel(ast_binaryrelation *node)
 {
     /* Your code here */
-  int left_type = node->left->type_check();
-  int right_type = node->right->type_check();
+  sym_index left_type = node->left->type_check();
+  sym_index right_type = node->right->type_check();
   if(left_type != right_type) {
     if(left_type == integer_type) {
-      node->left = new ast_cast(node->pos, node->left);
+      node->left = new ast_cast(node->left->pos, node->left);
     }
     else {
-      node->right = new ast_cast(node->pos, node->right);
+      node->right = new ast_cast(node->right->pos, node->right);
     }
   }
-  //node->type = integer_type;
+  node->type = integer_type;
   return integer_type;
 }
 
@@ -355,8 +367,8 @@ sym_index ast_procedurecall::type_check()
 sym_index ast_assign::type_check()
 {
     /* Your code here */
-  int lhs_type = lhs->type_check();
-  int rhs_type = rhs->type_check();
+  sym_index lhs_type = lhs->type_check();
+  sym_index rhs_type = rhs->type_check();
  
   if(lhs_type == integer_type && rhs_type == real_type) {
     type_error(pos) << "Can't assign real value to integer variable\n";
@@ -388,7 +400,7 @@ sym_index ast_while::type_check()
 sym_index ast_if::type_check()
 {
     /* Your code here */
-  if (!condition->type == integer_type){
+  if (!condition->type_check() == integer_type){
     type_error(pos) << "Condition of if statement must be of integer type \n";
   }
   body->type_check();
@@ -450,7 +462,7 @@ sym_index ast_functioncall::type_check()
 {
     /* Your code here */
   //parameter_list->type_check();
-  cout << "Enter ast_functioncall" << endl;
+  
   type_checker->check_parameters(id, parameter_list);
   symbol* sym = sym_tab->get_symbol(id->sym_p);
   return sym->type;
