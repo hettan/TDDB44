@@ -94,14 +94,25 @@ void ast_stmt_list::optimize()
 /* Optimize a list of expressions. */
 void ast_expr_list::optimize()
 {
-    /* Your code here */
+    /* Your code here */  
+  if (preceding != NULL) {
+    preceding->optimize();
+  }
+  if (last_expr != NULL) {
+    last_expr->optimize();
+  }
 }
 
 
 /* Optimize an elsif list. */
 void ast_elsif_list::optimize()
-{
-    /* Your code here */
+{   /* Your code here */  
+  if (preceding != NULL) {
+    preceding->optimize();
+  }
+  if (last_elsif != NULL) {
+    last_elsif->optimize();
+  }  
 }
 
 
@@ -116,6 +127,10 @@ void ast_id::optimize()
 void ast_indexed::optimize()
 {
     /* Your code here */
+
+  if(index != NULL){
+    index->optimize();
+  }
 }
 
 
@@ -126,7 +141,57 @@ void ast_indexed::optimize()
 ast_expression *ast_optimizer::fold_constants(ast_expression *node)
 {
     /* Your code here */
-    return NULL;
+  ast_binaryoperation opr = node->get_ast_binaryoperation();
+  opr->left->optimize();
+  opr->right->optimize();
+  constant_value lvalue;
+  if (opr->left->get_ast_id() != NULL){
+    sym_index sym_p = opr->left->get_ast_id()->sym_p;
+    symbol* sym = sym_tab->get_symbol(sym_p);
+    if(sym->type == SYM_CONST){
+      lvalue = sym->get_constant_symbol()->const_value;
+    }
+    else{
+      return node; 
+    }
+  }
+  else if(opr->left->get_ast_integer() != NULL){
+    lvalue = opr->left->get_ast_integer()->value;
+  }
+  else if (opr->left->get_ast_real() ! = NULL){
+    lvalue = opr->left->get_ast_real()->value;
+  }
+  else{
+    fatal("Should not be here 1");
+  }
+
+  constant_value rvalue;
+  if (opr->right->get_ast_id() != NULL){
+    sym_index sym_p = opr->right->get_ast_id()->sym_p;
+    symbol* sym = sym_tab->get_symbol(sym_p);
+    if(sym->type == SYM_CONST){
+      rvalue = sym->get_constant_symbol()->const_value;
+    }
+    else{
+      return node; 
+    }
+  }
+  else if(opr->right->get_ast_integer() != NULL){
+    rvalue = opr->right->get_ast_integer()->value;
+  }
+  else if (opr->right->get_ast_real() ! = NULL){
+    rvalue = opr->right->get_ast_real()->value;
+  }
+  else{
+    fatal("Should not be here 2");
+  }
+  
+  if(node->type == integer_type) {
+    return new ast_integer(node->pos, lvalue + rvalue);
+  }
+  else {
+    return new ast_real(node->pos, lvalue + rvalue);
+  }
 }
 
 /* All the binary operations should already have been detected in their parent
@@ -134,41 +199,49 @@ ast_expression *ast_optimizer::fold_constants(ast_expression *node)
 void ast_add::optimize()
 {
     /* Your code here */
+  this* = optimizer->fold_constants(this);
 }
 
 void ast_sub::optimize()
 {
     /* Your code here */
+  this* = optimizer->fold_constants(this);
 }
 
 void ast_mult::optimize()
 {
     /* Your code here */
+  this* = optimizer->fold_constants(this);
 }
 
 void ast_divide::optimize()
 {
     /* Your code here */
+  this* = optimizer->fold_constants(this);
 }
 
 void ast_or::optimize()
 {
     /* Your code here */
+  this* = optimizer->fold_constants(this);
 }
 
 void ast_and::optimize()
 {
     /* Your code here */
+  this* = optimizer->fold_constants(this);
 }
 
 void ast_idiv::optimize()
 {
     /* Your code here */
+  this* = optimizer->fold_constants(this);
 }
 
 void ast_mod::optimize()
 {
     /* Your code here */
+  this* = optimizer->fold_constants(this);
 }
 
 
