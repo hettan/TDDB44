@@ -256,10 +256,22 @@ const_decl      : T_IDENT T_EQ integer T_SEMICOLON
 		      sym_tab->enter_constant(pos, $1, con->type, con->const_value.rval);
 		  }
 		}
-                | T_IDENT T_EQ error T_SEMICOLON                
+                | T_IDENT T_EQ error T_SEMICOLON
+		{
+		  yyerror("Can't assign constant, error in right-handside.");
+		} 
 		| T_IDENT T_EQ real error
+		{
+		  yyerror("Can't assign constant, missing semicolon.");
+		}
 		| T_IDENT T_EQ integer error
+		{
+		  yyerror("Can't assign constant, missing semicolon.");
+		}
 		| T_IDENT T_EQ const_id error
+		{
+		  yyerror("Can't assign constant, missing semicolon.");
+		}
                 ;
 
 
@@ -519,7 +531,8 @@ opt_param_list  : T_LEFTPAR param_list T_RIGHTPAR
 		}
                 | T_LEFTPAR error T_RIGHTPAR
                 {
-                    $$ = NULL;
+		  yyerror("Error in parameters");
+		  $$ = NULL;
                 }
                 | /* empty */
                 {
@@ -609,6 +622,7 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
 		}
                 | T_IF error T_THEN stmt_list elsif_list else_part T_END
 		{
+		  yyerror("Error in if-condtion");
 		  $$ = NULL;
 		}
                 | T_WHILE expr T_DO stmt_list T_END
@@ -622,14 +636,17 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                 }
                 | T_WHILE expr T_DO error T_END
                 {
+		  yyerror("Error in do-body");
 		  $$ = NULL;
 		}
                 | T_WHILE error T_DO stmt_list T_END
                 {
+		  yyerror("Error in while-condition");
 		  $$ = NULL;
 		}
                 | T_WHILE error T_DO error T_END
                 {
+		  yyerror("Error in while-condition and do-body");
 		  $$ = NULL;
 		}
                 | proc_id T_LEFTPAR opt_expr_list T_RIGHTPAR
@@ -643,6 +660,7 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                 }
                 | proc_id T_LEFTPAR error T_RIGHTPAR
                 {
+		  yyerror("Can't call procedure, error in arguments");
 		  $$ = NULL;
 		}
                 | lvariable T_ASSIGN expr
@@ -656,6 +674,7 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                 }
                 | lvariable T_ASSIGN error
                 {
+		  yyerror("Can't assign, error in right expression");
 		  $$ = NULL;
 		}
                 | T_RETURN expr
@@ -700,7 +719,8 @@ lvariable       : lvar_id
                 }
                 | array_id T_LEFTBRACKET error T_RIGHTBRACKET
                 {
-                    $$ = NULL;
+		  yyerror("Error in index expression");
+		  $$ = NULL;
                 }
                 ;
 
@@ -719,6 +739,7 @@ rvariable       : rvar_id
 		}
                 | array_id T_LEFTBRACKET error T_RIGHTBRACKET
                 {
+		  yyerror("Error in index expression");
 		  $$ = NULL;
                 }
                 ;

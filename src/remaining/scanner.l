@@ -339,7 +339,13 @@ procedure                {
                                  yylloc.first_line = yylineno;
                                  yylloc.first_column = column;
                                  column += yyleng;
-                                 yylval.pool_p = sym_tab->pool_install(sym_tab->capitalize(yytext));
+
+				 yylval.pool_p = sym_tab->pool_install(sym_tab->capitalize(yytext));
+				 sym_index tmp = sym_tab->lookup_symbol(yylval.pool_p);
+				 if(tmp != NULL_SYM) {
+				    sym_tab->pool_forget(yylval.pool_p);
+				    yylval.pool_p = (sym_tab->get_symbol(tmp))->id;
+				 }
                                  return T_IDENT;
                       }
 
@@ -356,8 +362,14 @@ procedure                {
                             yylloc.first_line = yylineno;
                             yylloc.first_column = column;
                             column += yyleng;
-                            yylval.str = sym_tab->pool_install(sym_tab->fix_string(yytext));
-                            return T_STRINGCONST;
+                            
+			    yylval.str = sym_tab->pool_install(sym_tab->fix_string(yytext));
+                            sym_index tmp = sym_tab->lookup_symbol(yylval.pool_p);
+			    if(tmp != NULL_SYM) {
+			       sym_tab->pool_forget(yylval.pool_p);
+			       yylval.pool_p = (sym_tab->get_symbol(tmp))->id;
+			    }
+			    return T_STRINGCONST;
                       }
 
 
