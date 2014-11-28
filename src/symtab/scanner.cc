@@ -621,10 +621,10 @@ char *yytext;
 
 #include <stdlib.h>
 #include <string.h>
-//#include "scanner.hh"
+#include "scanner.hh"
 #include "symtab.hh"
-#include "ast.hh"
-#include "parser.hh"
+//#include "ast.hh"
+//#include "parser.hh"
 
 // This is where you put #include directives as needed for later labs.
 // include "ast.hh", parser.hh" in that order

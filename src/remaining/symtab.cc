@@ -544,12 +544,13 @@ void symbol_table::open_scope()
 sym_index symbol_table::close_scope()
 {
   
-  sym_index next = current_environment();
-  while(next >= sym_pos) {
+  sym_index last = current_environment();
+  sym_index next = sym_pos;
+  while(next > last) {
     sym_index hash_link = sym_table[next]->hash_link;
     hash_table[sym_table[next]->back_link] = hash_link;
     (sym_table[next]->hash_link) = NULL_SYM;
-    next++;
+    next--;
   }
   current_level--;
   return block_table[current_level];
@@ -672,7 +673,6 @@ sym_index symbol_table::install_symbol(const pool_index pool_p,
   }
 
   symbol* sym;
-  
   switch(tag) {
   case SYM_ARRAY :
     sym = new array_symbol(pool_p);
