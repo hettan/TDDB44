@@ -36,8 +36,15 @@ public:
     // This is a convenient method used in optimize.cc. It has to be public
     // so the ast_* nodes can access it. Another solution would be to make it
     // a static method in the optimize.cc file... A matter of preference.
-    ast_expression *fold_constants(ast_expression *);
-    ast_expression *fold_bin(ast_expression *);
+  
+  ast_expression *fold_constants(ast_expression *);
+  ast_expression *fold_bin(ast_expression *);
+  ast_expression *get_new_node(position_information *pos, constant_value lvalue, constant_value rvalue);
+  bool is_constant(ast_expression *);
+  bool is_value(ast_expression *);
+  bool is_binrel(ast_expression *);
+  constant_value get_constant_value(ast_expression *);
+  
 };
 
 

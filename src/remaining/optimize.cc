@@ -133,7 +133,20 @@ void ast_indexed::optimize()
   }
 }
 
-bool is_value(ast_expression *node) {
+bool ast_optimizer::is_binrel(ast_expression *node)
+{
+    switch (node->tag) {
+    case AST_EQUAL:
+    case AST_NOTEQUAL:
+    case AST_GREATERTHAN:
+    case AST_LESSTHAN:
+        return true;
+    default:
+        return false;
+    }
+}
+
+bool ast_optimizer::is_value(ast_expression *node) {
   switch(node->type) {
   case AST_INTEGER:
   case AST_REAL:
@@ -143,13 +156,33 @@ bool is_value(ast_expression *node) {
   }
 }
 
-bool is_constant(ast_expression *node) {
+bool ast_optimizer::is_constant(ast_expression *node) {
   if(node->type == AST_ID) {
     sym_index sym_p = node->get_ast_id()->sym_p;
     return (sym_tab->get_symbol_type(sym_p) == SYM_CONST);
   }
   return false;
 }
+
+ast_expression *ast_optimizer::get_new_node(position_information *pos,constant_value lvalue,constant_value rvalue) {
+ 
+  if(lvalue.rval == NULL && rvalue.rval == NULL){
+    return new ast_integer(pos, lvalue.ival + rvalue.ival);
+  }
+  if(lvalue.ival == NULL && rvalue.ival == NULL){
+    return new ast_real(pos, lvalue.rval + rvalue.rval);
+  }
+  if(lvalue.ival == NULL && rvalue.ival != NULL){
+    return new ast_real(pos, lvalue.rval + rvalue.ival);
+  }
+  if(lvalue.ival != NULL && rvalue.ival == NULL){
+    return new ast_real(pos, lvalue.ival + rvalue.rval);
+  }
+  fatal("couln't create node");
+  return NULL;
+}
+
+
 
 ast_expression *ast_optimizer::fold_bin(ast_expression *node) {
   //OUR CODE
@@ -160,31 +193,44 @@ ast_expression *ast_optimizer::fold_bin(ast_expression *node) {
     return node
     }*/
   if(is_binop(node)) {
-    //try fold
-    return fold_constants(node);
+    ast_binaryoperation* opr = node->get_ast_binaryoperation();
+    constant_value lvalue = get_constant_value(opr->left);
+    if (lvalue.ival == NULL && lvalue.rval == NULL){
+      return node;
+    }
+    constant_value rvalue = get_constant_value(opr->right);
+    if (rvalue.ival == NULL && rvalue.rval == NULL ){
+      return node;
+    }
+    position_information *pos = node->pos;
+    free(node);
+    return get_new_node(pos, lvalue, rvalue);
   }
   else if(is_binrel(node)) {
-    return fold_constants(node);
+    return node;
   }
   else {
     return node;
   }
 }
 
-constant_value *ast_optimizer::get_constant_value(ast_expression *node) {
+constant_value ast_optimizer::get_constant_value(ast_expression *node) {
   constant_value value;
   if(is_constant(node)) {
     sym_index sym_p = node->get_ast_id()->sym_p;
     value = sym_tab->get_symbol(sym_p)->get_constant_symbol()->const_value;
   }
   else if(node->type == AST_INTEGER){
-    value = node->get_ast_integer()->value;
+    value.ival = node->get_ast_integer()->value;
   }
   else if (node->type == AST_REAL){
-    value = node->get_ast_real()->value;
+    value.rval = node->get_ast_real()->value;
   }
-  else{
-    value = -1;
+  else if (node->type == AST_CAST){
+    constant_value cast_value = get_constant_value(node->get_ast_cast()->expr);
+    if (!(cast_value.ival == NULL && cast_value.rval == NULL )){
+	value = cast_value;
+    }
   }
   return value;
 }
@@ -194,7 +240,8 @@ constant_value *ast_optimizer::get_constant_value(ast_expression *node) {
    original node if no optimization could be performed. */
 ast_expression *ast_optimizer::fold_constants(ast_expression *node)
 {
-    /* Your code here */
+   /* Your code here */
+  /*
   ast_binaryoperation opr = node->get_ast_binaryoperation();
   constant_value lvalue;
   if (opr->left->get_ast_id() != NULL){
@@ -244,7 +291,9 @@ ast_expression *ast_optimizer::fold_constants(ast_expression *node)
   else {
     return new ast_real(node->pos, lvalue + rvalue);
   }
-}
+  */
+  return NULL;
+  }
 
 /* All the binary operations should already have been detected in their parent
    nodes, so we don't need to do anything at all here. */
@@ -253,8 +302,8 @@ void ast_add::optimize()
     /* Your code here */
   left->optimize();
   right->optimize();
-  left = fold_constants(left);
-  right = fold_constants(right);
+  left = optimizer->fold_bin(left);
+  right = optimizer->fold_bin(right);
   //this* = optimizer->fold_constants(this);
 }
 
@@ -329,12 +378,16 @@ void ast_greaterthan::optimize()
 
 void ast_procedurecall::optimize()
 {
+  id->optimize();
+  parameter_list->optimize();
     /* Your code here */
 }
 
 
 void ast_assign::optimize()
 {
+  lhs->optimize();
+  rhs->optimize();
     /* Your code here */
 }
 
@@ -342,39 +395,56 @@ void ast_assign::optimize()
 void ast_while::optimize()
 {
     /* Your code here */
+  condition->optimize();
+  body->optimize();
 }
 
 
 void ast_if::optimize()
 {
+  condition->optimize();
+  body->optimize();
+  if(elsif_list != NULL) {
+    elsif_list->optimize();
+  }
+  if(else_body != NULL) {
+    else_body->optimize();
+  }
     /* Your code here */
 }
 
 
 void ast_return::optimize()
 {
+  value->optimize();
     /* Your code here */
 }
 
 
 void ast_functioncall::optimize()
 {
+  id->optimize();
+  parameter_list->optimize();
     /* Your code here */
 }
 
 void ast_uminus::optimize()
 {
+  expr->optimize();
     /* Your code here */
 }
 
 void ast_not::optimize()
 {
+  expr->optimize();
     /* Your code here */
 }
 
 
 void ast_elsif::optimize()
 {
+  condition->optimize();
+  body->optimize();
     /* Your code here */
 }
 
@@ -393,10 +463,12 @@ void ast_real::optimize()
 /* Note: See the comment in fold_constants() about casts and folding. */
 void ast_cast::optimize()
 {
-    /* Your code here */
+  expr->optimize();
+  /*if(is_value(expr)) {
+    
+    }*/
+  /* Your code here */
 }
-
-
 
 void ast_procedurehead::optimize()
 {
