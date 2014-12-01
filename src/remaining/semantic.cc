@@ -207,8 +207,11 @@ sym_index semantic::check_binop1(ast_binaryoperation *node)
     /* Your code here */ 
   sym_index left_type = node->left->type_check();
   sym_index right_type = node->right->type_check();
-
-  if(left_type != right_type) {
+  if (left_type == void_type || right_type == void_type){
+    type_error(node->pos) << "Void type not allowed in expression \n"; 
+    return void_type;
+  }
+  else if(left_type != right_type) {
     if(left_type == integer_type) {
       node->left = new ast_cast(node->left->pos, node->left);
       node->type = real_type;
@@ -249,7 +252,10 @@ sym_index ast_divide::type_check()
     /* Your code here */
   sym_index left_type = left->type_check();
   sym_index right_type = right->type_check();
-  
+  if (left_type == void_type || right_type == void_type){
+    type_error(pos) << "Void type not allowed in divide expression  \n"; 
+    return void_type;
+  }
   if(left_type == integer_type) {
     left = new ast_cast(left->pos, left);
   }
@@ -317,6 +323,10 @@ sym_index semantic::check_binrel(ast_binaryrelation *node)
     /* Your code here */
   sym_index left_type = node->left->type_check();
   sym_index right_type = node->right->type_check();
+  if (left_type == void_type || right_type == void_type){
+    type_error(node->pos) << "Void type not allowed in condition \n"; 
+    return void_type;
+  }
   if(left_type != right_type) {
     if(left_type == integer_type) {
       node->left = new ast_cast(node->left->pos, node->left);
