@@ -44,11 +44,13 @@ public:
   
   ast_expression *fold_constants(ast_expression *);
   ast_expression *fold_bin(ast_expression *);
-  ast_expression *get_new_node(position_information *pos, fold_value lvalue, fold_value rvalue);
+  float fold_float(ast_node_type, float, float);
+  fold_value fold_int(ast_node_type, long, long);
+  ast_expression *get_new_node(position_information *pos, ast_node_type tag, fold_value lvalue, fold_value rvalue);
+  fold_value get_constant_value(ast_expression *);
   bool is_constant(ast_expression *);
   bool is_value(ast_expression *);
   bool is_binrel(ast_expression *);
-  fold_value get_constant_value(ast_expression *);
   
 };
 
