@@ -18,13 +18,18 @@ class ast_optimizer;
 extern ast_optimizer *optimizer;
 
 
+struct fold_value {
+  sym_index type;
+  constant_value value;
+};
+
 class ast_optimizer
 {
 /* You might want to add your own methods to this header file when
    solving the optimization lab. */
     
 public:
-
+  
     // This is the interface to parser.y. Sending in a function body as
     // arguments performs (destructive) optimization on it.
     void do_optimize(ast_stmt_list *);
@@ -39,11 +44,11 @@ public:
   
   ast_expression *fold_constants(ast_expression *);
   ast_expression *fold_bin(ast_expression *);
-  ast_expression *get_new_node(position_information *pos, constant_value lvalue, constant_value rvalue);
+  ast_expression *get_new_node(position_information *pos, fold_value lvalue, fold_value rvalue);
   bool is_constant(ast_expression *);
   bool is_value(ast_expression *);
   bool is_binrel(ast_expression *);
-  constant_value get_constant_value(ast_expression *);
+  fold_value get_constant_value(ast_expression *);
   
 };
 
