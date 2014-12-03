@@ -138,7 +138,7 @@ sym_index ast_id::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
-    return NULL_SYM;
+    return sym_p;
 }
 
 
@@ -146,6 +146,8 @@ sym_index ast_integer::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
+    sym_index address = sym_tab->gen_temp_var(integer_type);
+    q += new quadruple(q_iload, value, NULL_SYM, address);
     return NULL_SYM;
 }
 
@@ -154,12 +156,18 @@ sym_index ast_real::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
+    sym_index address = sym_tab->gen_temp_var(real_type);
+    q += new quadruple(q_rload, sym_tab->ieee(value), NULL_SYM, address);
     return NULL_SYM;
 }
 
 
 /* Expressions of various kinds. */
 
+sym_index do_binop(quad_list &q, quad_op_type type1, quad_op_type type2, ast_binaryoperation *node)
+{
+  
+}
 
 /* These three following methods are extremely similar, and we could have
    written a static do_unary function above to handle them. To be able to
@@ -194,6 +202,7 @@ sym_index ast_add::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
+    return do_binop(q, 
     return NULL_SYM;
 }
 

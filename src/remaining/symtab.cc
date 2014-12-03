@@ -18,6 +18,7 @@ sym_index void_type;
 sym_index integer_type;
 sym_index real_type;
 
+sym_index temp_var_counter = 0;
 
 
 /*** The symbol_table class - watch out, it's big. ***/
@@ -172,7 +173,23 @@ long symbol_table::get_next_label()
 sym_index symbol_table::gen_temp_var(sym_index type)
 {
     /* Your code here */
-    return NULL_SYM;
+  if(type == void_type) {
+    fatal("Error generating temp variable of type 'void_type. Type not allowed.");
+    return -1;
+  }
+  if(temp_var_counter >= 1000000) {
+    fatal("To many temporary variables generated, max is 1 million.");
+    return -1;
+  }
+  const char *temp_var_name = "$"+(temp_var_counter++);
+  pool_index pool_p = pool_install(const_cast<char *>(temp_var_name));
+  sym_index sym_p = install_symbol(pool_p, SYM_VAR);
+  
+  symbol *sym = get_symbol(sym_p);
+  variable_symbol *var_sym = sym->get_variable_symbol();
+  var_sym->type = type;
+
+  return sym_p;
 }
 
 
