@@ -183,13 +183,15 @@ sym_index symbol_table::gen_temp_var(sym_index type)
   }
   const char *temp_var_name = "$"+(temp_var_counter++);
   pool_index pool_p = pool_install(const_cast<char *>(temp_var_name));
-  sym_index sym_p = install_symbol(pool_p, SYM_VAR);
+  position_information *pos = new position_information(0, 0);
+  return enter_variable(pos, pool_p, type);
+  /*sym_index sym_p = install_symbol(pool_p, SYM_VAR);
   
   symbol *sym = get_symbol(sym_p);
   variable_symbol *var_sym = sym->get_variable_symbol();
   var_sym->type = type;
-
-  return sym_p;
+  */
+  //return sym_p;
 }
 
 

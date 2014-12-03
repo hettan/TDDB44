@@ -373,7 +373,6 @@ sym_index ast_procedurecall::type_check()
   return void_type;
 }
 
-
 sym_index ast_assign::type_check()
 {
     /* Your code here */
@@ -413,7 +412,9 @@ sym_index ast_if::type_check()
   if (!condition->type_check() == integer_type){
     type_error(pos) << "Condition of if statement must be of integer type \n";
   }
-  body->type_check();
+  if (body != NULL){
+    body->type_check();
+  }
   if (elsif_list != NULL){ 
     elsif_list->type_check();
   }
@@ -500,11 +501,11 @@ sym_index ast_elsif::type_check()
   if(condition->type_check() != integer_type) {
     type_error(pos) << "Condition need to be of integer type.\n";
   }
-  body->type_check();
+  if(body != NULL) {
+    body->type_check();
+  }
   return void_type;
 }
-
-
 
 sym_index ast_integer::type_check()
 {

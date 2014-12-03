@@ -128,10 +128,7 @@ void ast_id::optimize()
 void ast_indexed::optimize()
 {
     /* Your code here */
-
-  //if(index != NULL){
   index->optimize();
-  //}
   index = optimizer->fold_bin(index);
 }
 
@@ -449,8 +446,9 @@ void ast_while::optimize()
 {
   /* Your code here */
   condition->optimize();
-  body->optimize();
-
+  if(body != NULL){ 
+    body->optimize();
+  }
   condition = optimizer->fold_bin(condition);
 }
 
@@ -459,7 +457,9 @@ void ast_if::optimize()
 {
   /* Your code here */
   condition->optimize();
-  body->optimize();
+  if(body != NULL) {
+    body->optimize();
+  }
   if(elsif_list != NULL) {
     elsif_list->optimize();
   }
@@ -505,7 +505,9 @@ void ast_elsif::optimize()
 {
   /* Your code here */
   condition->optimize();
-  body->optimize();
+  if(body != NULL) {
+    body->optimize();
+  }
 
   condition = optimizer->fold_bin(condition);
 }
