@@ -323,7 +323,7 @@ procedure                {
                                  yylloc.first_line = yylineno;
                                  yylloc.first_column = column;
                                  column += yyleng;
-                                 yylval.rval = stof(yytext);
+                                 yylval.rval = atof(yytext);
                                  return T_REALNUM;
                                  
                                  }
