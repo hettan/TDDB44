@@ -204,7 +204,7 @@ fold_value ast_optimizer::fold_int(ast_node_type tag, long lvalue, long rvalue) 
 }
 
 
-float ast_optimizer::fold_float(ast_node_type tag, float lvalue, float rvalue) {
+double ast_optimizer::fold_float(ast_node_type tag, double lvalue, double rvalue) {
   switch(tag) {
   case AST_ADD:
      return lvalue + rvalue;
@@ -233,11 +233,11 @@ ast_expression *ast_optimizer::get_new_node(position_information *pos, ast_node_
   }
 
   if(lvalue.type == integer_type && rvalue.type == real_type){
-    return new ast_real(pos, fold_float(tag, (float)lvalue.value.ival, rvalue.value.rval));
+    return new ast_real(pos, fold_float(tag, (double)lvalue.value.ival, rvalue.value.rval));
   }
   
   if(lvalue.type == real_type && rvalue.type == integer_type){
-    return new ast_real(pos, fold_float(tag, lvalue.value.rval, (float)rvalue.value.ival));
+    return new ast_real(pos, fold_float(tag, lvalue.value.rval, (double)rvalue.value.ival));
   }
   
   if(lvalue.type == real_type && rvalue.type == real_type){
