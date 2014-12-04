@@ -232,7 +232,7 @@ sym_index ast_cast::generate_quads(quad_list &q)
     USE_Q;
     /* Your code here */
     sym_index pos = expr->generate_quads(q);
-    sym_index addr = sym_tab->gen_temp_var(integer_type);
+    sym_index addr = sym_tab->gen_temp_var(real_type);
     q += new quadruple(q_itor, pos, NULL_SYM, addr);
     return addr;
 }
