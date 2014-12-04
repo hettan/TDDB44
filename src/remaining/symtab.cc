@@ -19,7 +19,7 @@ sym_index void_type;
 sym_index integer_type;
 sym_index real_type;
 
-sym_index temp_var_counter = 0;
+sym_index temp_var_counter = 1;
 
 
 /*** The symbol_table class - watch out, it's big. ***/
@@ -188,17 +188,6 @@ sym_index symbol_table::gen_temp_var(sym_index type)
   pool_index pool_p = pool_install(const_cast<char *>(temp_var_name.str().c_str()));
   position_information *pos = new position_information(0, 0);
   return enter_variable(pos, pool_p, type);
-
-  /*
-  char tmp[10] = {0};
-  tmp[0] = '$';
-  ++temp_nr;
-  if (temp_nr > 1000000)
-    fatal("Too many temporary variables\n");
-  snprintf(&tmp[1], 8, "%d", temp_nr);
-  pool_index pool_p = pool_install(tmp);
-  position_information *pos = new position_information(0, 0);
-  return enter_variable(pos, pool_p, type);*/
 }
 
 

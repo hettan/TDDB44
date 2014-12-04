@@ -190,9 +190,6 @@ sym_index do_binop(quad_list &q, quad_op_type op_int, quad_op_type op_real, ast_
 
 sym_index do_binrel(quad_list &q, quad_op_type op_int, quad_op_type op_real, ast_binaryrelation *node)
 {
-  if (node->type != integer_type) {
-    fatal("SÄGER INGENTING! Hej bagarn vad kul att se dig idag!");
-  }
   sym_index addr = sym_tab->gen_temp_var(node->type);
   if(node->left->type == integer_type && node->right->type == integer_type) {
     q += new quadruple(op_int, node->left->generate_quads(q), node->right->generate_quads(q), addr);

@@ -57,7 +57,16 @@ int code_generator::align(int frame_size)
     return ((frame_size + 7) / 8) * 8;
 }
 
-
+void code_generator::assem(string cmd, string op1, string op2) 
+{
+  out << "\t\t" << cmd << "\t";
+  if(op1 != NULL) {
+    out << "\t" << op1;
+    if(op2 != NULL) {
+      out << ", " << op2;
+    }
+  }
+} 
 
 /* This method generates assembler code for initialisating a procedure or
    function. */
@@ -65,6 +74,7 @@ void code_generator::prologue(symbol *new_env)
 {
     int ar_size;
     int label_nr;
+    block_level level;
     // Used to count parameters.
     parameter_symbol *last_arg;
 
@@ -77,12 +87,14 @@ void code_generator::prologue(symbol *new_env)
         ar_size = align(proc->ar_size);
         label_nr = proc->label_nr;
         last_arg = proc->last_parameter;
+	level = proc->level;
     } else if (new_env->tag == SYM_FUNC) {
         function_symbol *func = new_env->get_function_symbol();
         /* Make sure ar_size is a multiple of eight */
         ar_size = align(func->ar_size);
         label_nr = func->label_nr;
         last_arg = func->last_parameter;
+	level = func->level;
     } else {
         fatal("code_generator::prologue() called for non-proc/func");
         return;
@@ -99,7 +111,28 @@ void code_generator::prologue(symbol *new_env)
     }
 
     /* Your code here */
-
+    
+    assem("push", "rbp", NULL);
+    assem("mov", "rcx", "rsp");
+    for(int i=1; i<=level; i++) {
+      //assem("sub", "rbp", 8);
+      assem("push", "#-"+8*i+"rbp");
+    }
+    //assem("enter");
+    //DO we really need below instructions?
+    assem("push", "rcx", NULL);
+    assem("rbp", "rcx");
+    assem("sub", "rsp", ar_size);
+    
+    /*
+      save return address (the address from where the call was made
+      prev_rbp (prev frame) = rbp;
+      push prev_rbp to stack
+      push main' rbp #can be handles with the one below.
+      push all frames rpb in current scope (except for main) aka displays 
+      
+     */
+    
     out << flush;
 }
 
@@ -114,7 +147,10 @@ void code_generator::epilogue(symbol *old_env)
     }
 
     /* Your code here */
+    assem("leave");
+    assem("ret");
 
+    /* NOT OUR */
     out << flush;
 }
 
@@ -520,6 +556,7 @@ void code_generator::expand(quad_list *q_list)
 
         case q_call: {
             /* Your code here */
+	  
             break;
         }
         case q_rreturn:
