@@ -6,6 +6,7 @@
 #include <iostream>
 #include <ctype.h>
 #include <string.h>
+#include <sstream>
 #include "symtab.hh"
 
 using namespace std;
@@ -173,6 +174,7 @@ long symbol_table::get_next_label()
 sym_index symbol_table::gen_temp_var(sym_index type)
 {
     /* Your code here */
+  
   if(type == void_type) {
     fatal("Error generating temp variable of type 'void_type. Type not allowed.");
     return -1;
@@ -181,17 +183,22 @@ sym_index symbol_table::gen_temp_var(sym_index type)
     fatal("To many temporary variables generated, max is 1 million.");
     return -1;
   }
-  const char *temp_var_name = "$"+(temp_var_counter++);
-  pool_index pool_p = pool_install(const_cast<char *>(temp_var_name));
+  stringstream temp_var_name;
+  temp_var_name << '$' << temp_var_counter++;
+  pool_index pool_p = pool_install(const_cast<char *>(temp_var_name.str().c_str()));
   position_information *pos = new position_information(0, 0);
   return enter_variable(pos, pool_p, type);
-  /*sym_index sym_p = install_symbol(pool_p, SYM_VAR);
-  
-  symbol *sym = get_symbol(sym_p);
-  variable_symbol *var_sym = sym->get_variable_symbol();
-  var_sym->type = type;
-  */
-  //return sym_p;
+
+  /*
+  char tmp[10] = {0};
+  tmp[0] = '$';
+  ++temp_nr;
+  if (temp_nr > 1000000)
+    fatal("Too many temporary variables\n");
+  snprintf(&tmp[1], 8, "%d", temp_nr);
+  pool_index pool_p = pool_install(tmp);
+  position_information *pos = new position_information(0, 0);
+  return enter_variable(pos, pool_p, type);*/
 }
 
 

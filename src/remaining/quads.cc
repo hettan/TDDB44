@@ -344,14 +344,14 @@ void ast_id::generate_assignment(quad_list &q, sym_index rhs)
 void ast_indexed::generate_assignment(quad_list &q, sym_index rhs)
 {
     sym_index index_pos = index->generate_quads(q);
-    sym_index addr = sym_tab->gen_temp_var(integer_type);
+    sym_index address = sym_tab->gen_temp_var(integer_type);
 
-    q += new quadruple(q_lindex, id->sym_p, index_pos, addr);
+    q += new quadruple(q_lindex, id->sym_p, index_pos, address);
 
     if (type == integer_type) {
-        q += new quadruple(q_istore, rhs, NULL_SYM, addr);
+        q += new quadruple(q_istore, rhs, NULL_SYM, address);
     } else if (type == real_type) {
-        q += new quadruple(q_rstore, rhs, NULL_SYM, addr);
+        q += new quadruple(q_rstore, rhs, NULL_SYM, address);
     } else {
         fatal("Illegal type in ast_indexed::generate_assignment()");
     }
@@ -410,10 +410,8 @@ sym_index ast_functioncall::generate_quads(quad_list &q)
     USE_Q;
     /* Your code here */
     int param_counter = 0;
-    symbol* sym = sym_tab->get_symbol(id->sym_p);
-    parameter_symbol* param_sym = sym->get_parameter_symbol();
-    parameter_list->generate_parameter_list(q, param_sym, &param_counter);
-
+    generate_param_list(q, parameter_list, &param_counter);
+      
     sym_index addr = sym_tab->gen_temp_var(integer_type);
     q += new quadruple(q_call, id->sym_p, param_counter, addr);
     
@@ -584,7 +582,6 @@ sym_index ast_functionhead::generate_quads(quad_list &q)
    care of adding a last_label. The code is identical for the two methods. */
 quad_list *ast_procedurehead::do_quads(ast_stmt_list *s)
 {
-  cout << "procedurehead" << endl << flush;
     int last_label = sym_tab->get_next_label();
     quad_list *q = new quad_list(last_label);
 
@@ -599,17 +596,16 @@ quad_list *ast_procedurehead::do_quads(ast_stmt_list *s)
 
 quad_list *ast_functionhead::do_quads(ast_stmt_list *s)
 {
-  cout << "functinohead" << endl << flush;
-    int last_label = sym_tab->get_next_label();
-    quad_list *q = new quad_list(last_label);
+  int last_label = sym_tab->get_next_label();
+  quad_list *q = new quad_list(last_label);
 
-    if (s != NULL) {
-        s->generate_quads(*q);
-    }
-
-    (*q) += new quadruple(q_labl, last_label, NULL_SYM, NULL_SYM);
-
-    return q;
+  if (s != NULL) {
+    s->generate_quads(*q);
+  }
+  
+  (*q) += new quadruple(q_labl, last_label, NULL_SYM, NULL_SYM);
+  
+  return q;
 }
 
 

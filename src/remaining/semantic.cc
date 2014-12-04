@@ -42,6 +42,8 @@ bool semantic::chk_param(ast_id *env,
                         parameter_symbol *formals,
                         ast_expr_list *actuals)
 {
+  // cout <<"f_sym : yolo"<< f_sym << endl;
+  //   cout << "formals ooe" << actuals << endl;
   if (formals == NULL && actuals == NULL){
     return true;
   }
@@ -64,6 +66,9 @@ void semantic::check_parameters(ast_id *call_id,
                                 ast_expr_list *param_list)
 {
     /* Your code here */
+  if(param_list != NULL) {
+    param_list->type_check();
+  }
   symbol* sym = sym_tab->get_symbol(call_id->sym_p);
   if (sym->tag == SYM_FUNC){
     function_symbol* f_sym = sym->get_function_symbol(); 
@@ -75,9 +80,6 @@ void semantic::check_parameters(ast_id *call_id,
   else if (sym->tag == SYM_PROC){
     procedure_symbol* p_sym = sym->get_procedure_symbol(); 
     parameter_symbol* formals = p_sym->last_parameter;
-    if(param_list != NULL) {
-      param_list->type_check();
-    }
     if(!chk_param(call_id, formals, param_list)) {
       type_error(call_id->pos) << "argument type error in procedure call" << endl;
     }
@@ -193,8 +195,8 @@ sym_index ast_indexed::type_check()
   if (index_type != integer_type) {
     type_error(pos) << "Only integer is allowed as index in array\n";
   }
-    
-  return id->type_check();
+  type = id->type_check();
+  return type;
 }
 
 
