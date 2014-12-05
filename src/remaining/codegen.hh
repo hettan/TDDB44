@@ -61,6 +61,7 @@ private:
 
     // Get frame base address.
     void frame_address(int level, const register_type);
+
 public:
     // Constructor. Arg = filename of assembler outfile.
     code_generator(const string);

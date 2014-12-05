@@ -3,6 +3,7 @@
 #include <fstream>
 #include <stdio.h>
 #include <string.h>
+#include <sstream>
 
 #include "symtab.hh"
 #include "quads.hh"
@@ -57,17 +58,6 @@ int code_generator::align(int frame_size)
     return ((frame_size + 7) / 8) * 8;
 }
 
-void code_generator::assem(string cmd, string op1, string op2) 
-{
-  out << "\t\t" << cmd << "\t";
-  if(op1 != NULL) {
-    out << "\t" << op1;
-    if(op2 != NULL) {
-      out << ", " << op2;
-    }
-  }
-} 
-
 /* This method generates assembler code for initialisating a procedure or
    function. */
 void code_generator::prologue(symbol *new_env)
@@ -112,17 +102,24 @@ void code_generator::prologue(symbol *new_env)
 
     /* Your code here */
     
-    assem("push", "rbp", NULL);
-    assem("mov", "rcx", "rsp");
+    out << "\t\t" <<"push" << "\t" << "rbp" << endl;
+    out << "\t\t" <<"mov" << "\t" << "rcx" << ", " << "rsp" << endl;
+
     for(int i=1; i<=level; i++) {
-      //assem("sub", "rbp", 8);
-      assem("push", "#-"+8*i+"rbp");
+      out << "\t\t" <<"push" << "\t" << "[rbp-" << 8*i << "]" << endl;
     }
-    //assem("enter");
-    //DO we really need below instructions?
-    assem("push", "rcx", NULL);
-    assem("rbp", "rcx");
-    assem("sub", "rsp", ar_size);
+
+    out << "\t\t" <<"push" << "\t" << "rcx" << endl;
+    out << "\t\t" <<"mov" << "\t" << "rbp" << ", " << "rcx" << endl;
+    out << "\t\t" <<"sub" << "\t" << "rsp" << ", " << ar_size << endl;
+    /*
+    int offset = 8*level;
+    while(last_arg != NULL) {
+      offset += last_arg->size;
+      out << "\t\t" << "mov"  << "\t" << "rcx" << ", " <<  "[rbp-" << offset << "]" << endl;
+      last_arg = last_arg->preceding;
+    }
+    */
     
     /*
       save return address (the address from where the call was made
@@ -147,8 +144,8 @@ void code_generator::epilogue(symbol *old_env)
     }
 
     /* Your code here */
-    assem("leave");
-    assem("ret");
+    out << "\t\t" <<"leave" << "\t" << endl;
+    out << "\t\t" <<"ret" << "\t" << endl;
 
     /* NOT OUR */
     out << flush;
@@ -161,6 +158,22 @@ void code_generator::epilogue(symbol *old_env)
 void code_generator::find(sym_index sym_p, int *level, int *offset)
 {
     /* Your code here */
+  symbol *sym = sym_tab->get_symbol(sym_p);
+  *level = sym->level;
+
+  if(sym->tag == SYM_ARRAY) {
+    array_symbol *a_sym = sym->get_array_symbol();
+    *offset = sym->offset + (a_sym->array_cardinality * sym_tab->get_size(a_sym->type));
+  }
+  else if(sym->tag == SYM_VAR) {
+    *offset = -sym->offset;
+  }
+  else if(sym->tag == SYM_PARAM) {
+    *offset = sym->offset;
+  }
+  else {
+    fatal("Find only supports ARRAY, VAR AND PARAM. Got something else!");
+  }
 }
 
 /*
@@ -169,6 +182,8 @@ void code_generator::find(sym_index sym_p, int *level, int *offset)
 void code_generator::frame_address(int level, const register_type dest)
 {
     /* Your code here */
+  cout << "\t\t" << "mov" << "\t" << reg[dest] << ", " << "[rbp-" << 8*level << "]" << endl; 
+  
 }
 
 /* This function fetches the value of a variable or a constant into a
@@ -176,6 +191,18 @@ void code_generator::frame_address(int level, const register_type dest)
 void code_generator::fetch(sym_index sym_p, register_type dest)
 {
     /* Your code here */
+  symbol *sym = sym_tab->get_symbol(sym_p);
+  if(sym->tag == SYM_VAR) {
+    variable_symbol *var_sym = sym->get_variable_symbol();
+    int level;
+    int offset;
+    find(sym_p, &level, &offset);
+    cout << "\t\t" << "mov" << "\t" << reg[dest] << ", " << "[rbp-" << (8*level + offset) << "]" << endl;
+  }
+  else if(sym->tag == SYM_CONST) {
+    constant_symbol *const_sym = sym->get_constant_symbol();
+    cout << "\t\t" << "mov" << "\t" << reg[dest] << ", " << const_sym->const_value.ival << endl; 
+  }
 }
 
 void code_generator::fetch_float(sym_index sym_p)
@@ -556,7 +583,6 @@ void code_generator::expand(quad_list *q_list)
 
         case q_call: {
             /* Your code here */
-	  
             break;
         }
         case q_rreturn:

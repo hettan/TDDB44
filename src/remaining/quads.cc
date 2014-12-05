@@ -516,11 +516,18 @@ sym_index ast_return::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
-    if(value->type == integer_type) {
-      q += new quadruple(q_ireturn, q.last_label, value->generate_quads(q), NULL_SYM);
+    if(value != NULL) {
+      sym_index sym_p = value->generate_quads(q);
+      if(value->type == integer_type) {
+	q += new quadruple(q_ireturn, q.last_label, value->generate_quads(q), NULL_SYM);
+      }
+      else {
+	q += new quadruple(q_rreturn, q.last_label, value->generate_quads(q), NULL_SYM);
+      }
+      return sym_p;
     }
     else {
-      q += new quadruple(q_rreturn, q.last_label, value->generate_quads(q), NULL_SYM);
+      q+= new quadruple(q_jmp, q.last_label, NULL_SYM, NULL_SYM);
     }
     return NULL_SYM;
 }
