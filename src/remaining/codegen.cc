@@ -1,3 +1,10 @@
+/*
+TODO
+- Should we do ieee() on float somewhere ?
+- Can we just use any register we want for temporary storage in our functions?
+- 
+*/
+
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -106,12 +113,15 @@ void code_generator::prologue(symbol *new_env)
     out << "\t\t" <<"mov" << "\t" << "rcx" << ", " << "rsp" << endl;
 
     for(int i=1; i<=level; i++) {
-      out << "\t\t" <<"push" << "\t" << "[rbp-" << 8*i << "]" << endl;
+      out << "\t\t" <<"push" << "\t" << "[rbp-" << STACK_WIDTH*i << "]" << endl;
     }
-
+    //NEXT_VAR_ADDR = STACK_WITDH*(level+1);
+    
     out << "\t\t" <<"push" << "\t" << "rcx" << endl;
     out << "\t\t" <<"mov" << "\t" << "rbp" << ", " << "rcx" << endl;
     out << "\t\t" <<"sub" << "\t" << "rsp" << ", " << ar_size << endl;
+    
+    block_arg_offset[level] = -(STACK_WIDTH * (level+1) + ar_size);
     /*
     int offset = 8*level;
     while(last_arg != NULL) {
@@ -160,16 +170,19 @@ void code_generator::find(sym_index sym_p, int *level, int *offset)
     /* Your code here */
   symbol *sym = sym_tab->get_symbol(sym_p);
   *level = sym->level;
-
+  
   if(sym->tag == SYM_ARRAY) {
-    array_symbol *a_sym = sym->get_array_symbol();
-    *offset = sym->offset + (a_sym->array_cardinality * sym_tab->get_size(a_sym->type));
+    //array_symbol *a_sym = sym->get_array_symbol();
+    *offset = -((*level + 1) * STACK_WIDTH);
+    *offset -= -sym->offset; // (a_sym->array_cardinality * sym_tab->get_size(a_sym->type));
   }
-  else if(sym->tag == SYM_VAR) {
-    *offset = -sym->offset;
+  else if(sym->tag == SYM_VAR || sym->tag == SYM_CONST) {
+    *offset = -((*level + 1) * STACK_WIDTH);
+    *offset -= -sym->offset;
   }
   else if(sym->tag == SYM_PARAM) {
-    *offset = sym->offset;
+    *offset = block_arg_offset[*level];
+    *offset += sym->offset;
   }
   else {
     fatal("Find only supports ARRAY, VAR AND PARAM. Got something else!");
@@ -182,7 +195,7 @@ void code_generator::find(sym_index sym_p, int *level, int *offset)
 void code_generator::frame_address(int level, const register_type dest)
 {
     /* Your code here */
-  cout << "\t\t" << "mov" << "\t" << reg[dest] << ", " << "[rbp-" << 8*level << "]" << endl; 
+  cout << "\t\t" << "mov" << "\t" << reg[dest] << ", " << "[rbp-" << STACK_WIDTH*(level+1) << "]" << endl; 
   
 }
 
@@ -191,43 +204,59 @@ void code_generator::frame_address(int level, const register_type dest)
 void code_generator::fetch(sym_index sym_p, register_type dest)
 {
     /* Your code here */
-  symbol *sym = sym_tab->get_symbol(sym_p);
-  if(sym->tag == SYM_VAR) {
-    variable_symbol *var_sym = sym->get_variable_symbol();
-    int level;
-    int offset;
-    find(sym_p, &level, &offset);
-    cout << "\t\t" << "mov" << "\t" << reg[dest] << ", " << "[rbp-" << (8*level + offset) << "]" << endl;
-  }
-  else if(sym->tag == SYM_CONST) {
-    constant_symbol *const_sym = sym->get_constant_symbol();
-    cout << "\t\t" << "mov" << "\t" << reg[dest] << ", " << const_sym->const_value.ival << endl; 
-  }
+  int level;
+  int offset;
+
+  find(sym_p, &level, &offset);
+  //Set reg[dest] to frame_start of level
+  frame_address(level, dest);
+  //Apply offset to reg[dest]
+  cout << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << offset << "]" << endl;  
+  
 }
 
 void code_generator::fetch_float(sym_index sym_p)
 {
-    /* Your code here */
+  /* Your code here */
+  int level;
+  int offset;
+  find(sym_p, &level, &offset);
+  //Set reg[dest] to frame_start of level
+  frame_address(level, RAX);
+  cout << "\t\t" << "fld" << "\t[" << reg[RAX] << offset << "]" << endl; 
 }
-
-
 
 /* This function stores the value of a register into a variable. */
 void code_generator::store(register_type src, sym_index sym_p)
 {
     /* Your code here */
+  cout << "\t\t" << "fld" << "\t" << reg[src] << endl;
+  int level;
+  int offset;
+  find(sym_p, &level, &offset); 
+  frame_address(level, src);
+  cout << "\t\t" << "fstp" << "\t[" << reg[src] << offset << "]" << endl;
 }
 
 void code_generator::store_float(sym_index sym_p)
 {
     /* Your code here */
+  int level;
+  int offset;
+  find(sym_p, &level, &offset); 
+  frame_address(level, RAX);
+  cout << "\t\t" << "fstp" << "\t[" << reg[RAX] << offset << "]" << endl;
 }
-
 
 /* This function fetches the base address of an array. */
 void code_generator::array_address(sym_index sym_p, register_type dest)
 {
     /* Your code here */
+  int level;
+  int offset;
+  find(sym_p, &level, &offset); 
+  frame_address(level, dest);
+  out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << offset << "]" << endl;  
 }
 
 /* This method expands a quad_list into assembler code, quad for quad. */
@@ -579,6 +608,7 @@ void code_generator::expand(quad_list *q_list)
 
         case q_param:
             /* Your code here */
+	    
             break;
 
         case q_call: {
