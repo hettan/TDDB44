@@ -185,7 +185,10 @@ sym_index symbol_table::gen_temp_var(sym_index type)
   }
   stringstream temp_var_name;
   temp_var_name << '$' << temp_var_counter++;
-  pool_index pool_p = pool_install(const_cast<char *>(temp_var_name.str().c_str()));
+  string str = temp_var_name.str();
+  const char *str_tmp = str.c_str();
+  pool_index pool_p = pool_install(const_cast<char*>(str_tmp));
+
   position_information *pos = new position_information(0, 0);
   return enter_variable(pos, pool_p, type);
 

@@ -411,8 +411,8 @@ sym_index ast_functioncall::generate_quads(quad_list &q)
     /* Your code here */
     int param_counter = 0;
     generate_param_list(q, parameter_list, &param_counter);
-      
-    sym_index addr = sym_tab->gen_temp_var(integer_type);
+    sym_index type = sym_tab->get_symbol_type(id->sym_p);
+    sym_index addr = sym_tab->gen_temp_var(type);
     q += new quadruple(q_call, id->sym_p, param_counter, addr);
     
     return addr;
@@ -507,7 +507,7 @@ sym_index ast_if::generate_quads(quad_list &q)
     if(else_body != NULL) {
       else_body->generate_quads(q);
     }
-
+    
     q += new quadruple(q_labl, end_label, NULL_SYM, NULL_SYM);    
     
     return NULL_SYM;
