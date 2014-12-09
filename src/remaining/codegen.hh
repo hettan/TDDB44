@@ -28,9 +28,6 @@ private:
 
     // Output file stream.
     ofstream out;
-
-  //our vars
-  int block_arg_offset[MAX_BLOCK];
   
     // Align a stack frame.
     int  align(int);
