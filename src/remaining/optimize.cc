@@ -428,7 +428,9 @@ void ast_procedurecall::optimize()
 {
   /* Your code here */
   id->optimize();
-  parameter_list->optimize();
+  if(parameter_list != NULL) {
+    parameter_list->optimize();
+  }
 }
 
 
@@ -485,7 +487,9 @@ void ast_functioncall::optimize()
 {
   /* Your code here */
   id->optimize();
-  parameter_list->optimize();
+  if(parameter_list != NULL) {
+    parameter_list->optimize();
+  }
 }
 
 void ast_uminus::optimize()

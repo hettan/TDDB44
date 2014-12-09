@@ -159,13 +159,12 @@ void code_generator::find(sym_index sym_p, int *level, int *offset)
   *level = sym->level;
   
   if(sym->tag == SYM_ARRAY) {
-    //array_symbol *a_sym = sym->get_array_symbol();
-    *offset = -((*level + 1) * STACK_WIDTH);
-    *offset -= -sym->offset; // (a_sym->array_cardinality * sym_tab->get_size(a_sym->type));
+    *offset = -((*level + 1) * STACK_WIDTH) - sym->offset;
+    //*offset -= sym->offset; // (a_sym->array_cardinality * sym_tab->get_size(a_sym->type));
   }
-  else if(sym->tag == SYM_VAR || sym->tag == SYM_CONST) {
-    *offset = -((*level + 1) * STACK_WIDTH);
-    *offset -= -sym->offset;
+  else if(sym->tag == SYM_VAR) {
+    *offset = -(((*level) + 1) * STACK_WIDTH) - sym->offset;
+    //*offset -= sym->offset;
   }
   else if(sym->tag == SYM_PARAM) {
     //*offset = block_arg_offset[*level];
@@ -192,7 +191,7 @@ void code_generator::frame_address(int level, const register_type dest)
 void code_generator::fetch(sym_index sym_p, register_type dest)
 {
     /* Your code here */
-   symbol* sym = sym_tab->get_symbol(sym_p);
+  symbol* sym = sym_tab->get_symbol(sym_p);
   if(sym->tag == SYM_CONST) {
     constant_symbol *const_sym = sym->get_constant_symbol();
     long value;
@@ -210,14 +209,13 @@ void code_generator::fetch(sym_index sym_p, register_type dest)
     
     find(sym_p, &level, &offset);
     //Set reg[dest] to frame_start of level
-    frame_address(level, dest);
+    frame_address(level, RCX);
     //Apply offset to reg[dest]
-
     if(offset > 0) {
-      out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << "+" << offset << "]" << endl;  
+      out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[RCX] << "+" << offset << "]" << endl;  
     }
     else {
-      out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << offset << "]" << endl;  
+      out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[RCX] << offset << "]" << endl;  
     }
   }
 }
@@ -225,16 +223,33 @@ void code_generator::fetch(sym_index sym_p, register_type dest)
 void code_generator::fetch_float(sym_index sym_p)
 {
   /* Your code here */
-  int level;
-  int offset;
-  find(sym_p, &level, &offset);
-  //Set reg[dest] to frame_start of level
-  frame_address(level, RAX);
-  if(offset > 0) {
-    out << "\t\t" << "fld" << "\t[" << reg[RAX] << "+" << offset << "]" << endl; 
+  symbol* sym = sym_tab->get_symbol(sym_p);
+  if(sym->tag == SYM_CONST) {
+    constant_symbol *const_sym = sym->get_constant_symbol();
+    long value;
+    if(const_sym->type == real_type) {
+      value = sym_tab->ieee(const_sym->const_value.rval);
+    }
+    else {
+      value = const_sym->const_value.ival;
+    }
+    out << "\t\t" << "mov" << "\t" << reg[RAX] << ", " << value << endl;  
+    out << "\t\t" << "fld" << "\t" << "qword ptr [" << reg[RAX] << "]" << endl; 
   }
   else {
-    out << "\t\t" << "fld" << "\t[" << reg[RAX] << offset << "]" << endl; 
+    int level;
+    int offset;
+    find(sym_p, &level, &offset);
+    //Set reg[dest] to frame_start of level
+    frame_address(level, RCX);
+    if(offset > 0) {
+      out << "\t\t" << "mov" << "\t" << reg[RAX] << ", [" << reg[RCX] << "+" << offset << "]" << endl;
+      out << "\t\t" << "fld" << "\t" << "qword ptr [" << reg[RAX] << "]" << endl; 
+    }
+    else {
+      out << "\t\t" << "mov" << "\t" << reg[RAX] << ", [" << reg[RCX] << offset << "]" << endl;
+      out << "\t\t" << "fld" << "\t" << "qword ptr [" << reg[RAX] << "]" << endl; 
+    }
   }
 }
 
@@ -247,21 +262,21 @@ void code_generator::store(register_type src, sym_index sym_p)
   int level;
   int offset;
   find(sym_p, &level, &offset); 
-  register_type dst;
+  /*register_type dst;
   if(src == RAX) {
     dst = RCX;
   }
   else {
     dst = RAX;
-  }
-  frame_address(level, dst);
+    }*/
+  frame_address(level, RCX);
 
   if(offset > 0) {
-    out << "\t\t" << "mov" << "\t" << "[" << reg[dst] << "+" << offset << "], " << reg[src] << endl; 
+    out << "\t\t" << "mov" << "\t" << "[" << reg[RCX] << "+" << offset << "], " << reg[src] << endl; 
     //out << "\t\t" << "fstp" << "\t[" << reg[src] << "+" << offset << "]" << endl;
   }
   else {
-    out << "\t\t" << "mov" << "\t" << "[" << reg[dst] << offset << "], " << reg[src] << endl; 
+    out << "\t\t" << "mov" << "\t" << "[" << reg[RCX] << offset << "], " << reg[src] << endl; 
     //out << "\t\t" << "fstp" << "\t[" << reg[src] << offset << "]" << endl;
   }
 }
@@ -272,12 +287,17 @@ void code_generator::store_float(sym_index sym_p)
   int level;
   int offset;
   find(sym_p, &level, &offset); 
-  frame_address(level, RAX);
+  frame_address(level, RCX);
   if(offset > 0) {
-    out << "\t\t" << "fstp" << "\t[" << reg[RAX] << "+" << offset << "]" << endl;
+    out << "\t\t" << "fstp" << "\t" << "ST(0)" << endl;// << "+" << offset << "]" << endl;
+    out << "\t\t" << "mov" << "\t"  << reg[RCX] << ", " << "res" << endl; 
+    store(RCX, sym_p);
   }
   else {
-    out << "\t\t" << "fstp" << "\t[" << reg[RAX] << offset << "]" << endl;
+    out << "\t\t" << "fstp" << "\t" << "ST(0)" << endl; //offset << "]" << endl;
+    //out << "\t\t" << "mov" << "\t[" << reg[RCX] << offset << "], " << "res" << endl; 
+    out << "\t\t" << "mov" << "\t"  << reg[RCX] << ", " << "res" << endl; 
+    store(RCX, sym_p);
   }
 }
 

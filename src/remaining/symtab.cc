@@ -682,7 +682,7 @@ sym_index symbol_table::install_symbol(const pool_index pool_p,
                                        const sym_type tag)
 {
   sym_index sym_p = lookup_symbol(pool_p);
-  if (sym_p >= current_environment()){
+  if (sym_p > current_environment()){
     return sym_p;
   }
 
@@ -716,9 +716,8 @@ sym_index symbol_table::install_symbol(const pool_index pool_p,
   default:
     fatal("Illegal symboltype");
   }
-
+  
   sym_pos++;
-
   hash_index hi = hash(pool_p);
 
   sym->back_link = hi;
