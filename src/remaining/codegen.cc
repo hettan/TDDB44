@@ -308,12 +308,13 @@ void code_generator::array_address(sym_index sym_p, register_type dest)
   int level;
   int offset;
   find(sym_p, &level, &offset); 
-  frame_address(level, dest);
+  frame_address(level, RCX);
   if(offset > 0) {
     out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << "+" << offset << "]" << endl;  
   }
   else {
-    out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << offset << "]" << endl;  
+    out << "\t\t" << "sub" << "\t" << reg[RCX] << ", " << (-1)*offset << endl;
+    out << "\t\t" << "mov" << "\t" << reg[dest] << ", " << reg[RCX] << endl;
   }
 }
 
