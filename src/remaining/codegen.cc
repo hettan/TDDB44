@@ -633,11 +633,12 @@ void code_generator::expand(quad_list *q_list)
             store(RAX, q->sym3);
             break;
 
-        case q_param:
-            /* Your code here */
-	  fetch(q->sym1, RAX);
-	  out << "\t\t" << "push" << "\t" << "rax" << endl;
-	  break;
+        case q_param: {
+	  /* Your code here */
+	    fetch(q->sym1, RAX);
+	    out << "\t\t" << "push" << "\t" << "rax" << endl;
+	    break;
+	}
 
         case q_call: {
 	  /* Your code here */
@@ -645,22 +646,15 @@ void code_generator::expand(quad_list *q_list)
 	  if(q->sym3 == NULL_SYM) {
 	    procedure_symbol *proc_sym = sym->get_procedure_symbol();
 	    out << "\t\t" << "call" << "\t" << "L" << proc_sym->label_nr << endl;
+	    out << "\t\t" << "add" << "\t" << "rsp" << ", " << STACK_WIDTH << endl;
 	  }
 	  //function
 	  else {
-	    
 	    function_symbol *func_sym = sym->get_function_symbol();
 	    out << "\t\t" << "call" << "\t" << "L" << func_sym->label_nr << endl;
+	    store(RAX, q->sym3); 
 	  }
-	  
-	  //MOVE rsp a STACK_WIDTH to replace the call with proc/func
-	  out << "\t\t" << "add" << "\t" << "rsp" << ", " << STACK_WIDTH << endl;
-	 
-	  
-	  int param_counter = q->sym2;
-	  //procedure
-	  
-	  
+       	  
 	  break;
         }
         case q_rreturn:

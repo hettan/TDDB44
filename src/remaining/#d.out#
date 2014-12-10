@@ -1,0 +1,1643 @@
+L4:			# NEWLINE
+	# PROLOGUE (NEWLINE)
+		push	rbp
+		mov	rcx, rsp
+		push	[rbp-8]
+		push	rcx
+		mov	rbp, rcx
+		sub	rsp, 0
+	# QUAD 1:     q_param    NEWLINE    -          -          
+		mov	rax, 10
+		push	rax
+	# QUAD 2:     q_call     WRITE      1          (null)     
+
+		call	L1
+		add	rsp, 8
+L5:
+	# QUAD 3:     q_labl     5          -          -          
+	# EPILOGUE (NEWLINE)
+		leave	
+		ret	
+L6:			# WRITE_INT
+	# PROLOGUE (WRITE_INT)
+		push	rbp
+		mov	rcx, rsp
+		push	[rbp-8]
+		push	rcx
+		mov	rbp, rcx
+		sub	rsp, 384
+	# QUAD 1:     q_iload    0          -          $1         
+		mov	rax, 0
+		mov	rcx, [rbp-16]
+		mov	[rcx-240], rax
+	# QUAD 2:     q_ieq      VAL        $1         $2         
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx+16]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-240]
+		cmp	rax, rcx
+		je	L16
+		mov	rax, 0
+		jmp	L17
+		L16:
+		mov	rax, 1
+		L17:
+		mov	rcx, [rbp-16]
+		mov	[rcx-248], rax
+	# QUAD 3:     q_jmpf     8          $2         -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-248]
+		cmp	rax, 0
+		je	L8
+	# QUAD 4:     q_param    ASCII0     -          -          
+		mov	rax, 48
+		push	rax
+	# QUAD 5:     q_call     WRITE      1          (null)     
+
+		call	L1
+		add	rsp, 8
+	# QUAD 6:     q_jmp      7          -          -          
+		jmp	L7
+L8:
+	# QUAD 7:     q_labl     8          -          -          
+L9:
+	# QUAD 8:     q_labl     9          -          -          
+	# QUAD 9:     q_iload    0          -          $3         
+		mov	rax, 0
+		mov	rcx, [rbp-16]
+		mov	[rcx-256], rax
+	# QUAD 10:     q_ilt      VAL        $3         $4         
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx+16]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-256]
+		cmp	rax, rcx
+		jl	L18
+		mov	rax, 0
+		jmp	L19
+		L18:
+		mov	rax, 1
+		L19:
+		mov	rcx, [rbp-16]
+		mov	[rcx-264], rax
+	# QUAD 11:     q_jmpf     10         $4         -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-264]
+		cmp	rax, 0
+		je	L10
+	# QUAD 12:     q_param    MINUS      -          -          
+		mov	rax, 45
+		push	rax
+	# QUAD 13:     q_call     WRITE      1          (null)     
+
+		call	L1
+		add	rsp, 8
+	# QUAD 14:     q_iuminus  VAL        -          $5         
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx+16]
+		neg	rax
+		mov	rcx, [rbp-16]
+		mov	[rcx-272], rax
+	# QUAD 15:     q_iassign  $5         -          VAL        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-272]
+		mov	rcx, [rbp-16]
+		mov	[rcx+16], rax
+L10:
+	# QUAD 16:     q_labl     10         -          -          
+L11:
+	# QUAD 17:     q_labl     11         -          -          
+	# QUAD 18:     q_iload    0          -          $6         
+		mov	rax, 0
+		mov	rcx, [rbp-16]
+		mov	[rcx-280], rax
+	# QUAD 19:     q_iassign  $6         -          BUFP       
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-280]
+		mov	rcx, [rbp-16]
+		mov	[rcx-232], rax
+L12:
+	# QUAD 20:     q_labl     12         -          -          
+	# QUAD 21:     q_iload    0          -          $7         
+		mov	rax, 0
+		mov	rcx, [rbp-16]
+		mov	[rcx-288], rax
+	# QUAD 22:     q_igt      VAL        $7         $8         
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx+16]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-288]
+		cmp	rax, rcx
+		jg	L20
+		mov	rax, 0
+		jmp	L21
+		L20:
+		mov	rax, 1
+		L21:
+		mov	rcx, [rbp-16]
+		mov	[rcx-296], rax
+	# QUAD 23:     q_jmpf     13         $8         -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-296]
+		cmp	rax, 0
+		je	L13
+	# QUAD 24:     q_iload    10         -          $9         
+		mov	rax, 10
+		mov	rcx, [rbp-16]
+		mov	[rcx-304], rax
+	# QUAD 25:     q_imod     VAL        $9         $10        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx+16]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-304]
+		cqo
+		idiv	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-312], rdx
+	# QUAD 26:     q_iassign  $10        -          C          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-312]
+		mov	rcx, [rbp-16]
+		mov	[rcx-24], rax
+	# QUAD 27:     q_iplus    C          ASCII0     $11        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-24]
+		mov	rcx, 48
+		add	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-320], rax
+	# QUAD 28:     q_lindex   BUF        BUFP       $12        
+		mov	rcx, [rbp-16]
+		sub	rcx, 32
+		mov	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-232]
+		imul	rcx, 8
+		sub	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-328], rax
+	# QUAD 29:     q_istore   $11        -          $12        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-320]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-328]
+		mov	[rcx], rax
+	# QUAD 30:     q_iload    1          -          $13        
+		mov	rax, 1
+		mov	rcx, [rbp-16]
+		mov	[rcx-336], rax
+	# QUAD 31:     q_iplus    BUFP       $13        $14        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-232]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-336]
+		add	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-344], rax
+	# QUAD 32:     q_iassign  $14        -          BUFP       
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-344]
+		mov	rcx, [rbp-16]
+		mov	[rcx-232], rax
+	# QUAD 33:     q_iload    10         -          $15        
+		mov	rax, 10
+		mov	rcx, [rbp-16]
+		mov	[rcx-352], rax
+	# QUAD 34:     q_idivide  VAL        $15        $16        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx+16]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-352]
+		cqo
+		idiv	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-360], rax
+	# QUAD 35:     q_iassign  $16        -          VAL        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-360]
+		mov	rcx, [rbp-16]
+		mov	[rcx+16], rax
+	# QUAD 36:     q_jmp      12         -          -          
+		jmp	L12
+L13:
+	# QUAD 37:     q_labl     13         -          -          
+L14:
+	# QUAD 38:     q_labl     14         -          -          
+	# QUAD 39:     q_iload    0          -          $17        
+		mov	rax, 0
+		mov	rcx, [rbp-16]
+		mov	[rcx-368], rax
+	# QUAD 40:     q_igt      BUFP       $17        $18        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-232]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-368]
+		cmp	rax, rcx
+		jg	L22
+		mov	rax, 0
+		jmp	L23
+		L22:
+		mov	rax, 1
+		L23:
+		mov	rcx, [rbp-16]
+		mov	[rcx-376], rax
+	# QUAD 41:     q_jmpf     15         $18        -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-376]
+		cmp	rax, 0
+		je	L15
+	# QUAD 42:     q_iload    1          -          $19        
+		mov	rax, 1
+		mov	rcx, [rbp-16]
+		mov	[rcx-384], rax
+	# QUAD 43:     q_iminus   BUFP       $19        $20        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-232]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-384]
+		sub	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-392], rax
+	# QUAD 44:     q_iassign  $20        -          BUFP       
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-392]
+		mov	rcx, [rbp-16]
+		mov	[rcx-232], rax
+	# QUAD 45:     q_irindex  BUF        BUFP       $21        
+		mov	rcx, [rbp-16]
+		sub	rcx, 32
+		mov	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-232]
+		imul	rcx, 8
+		sub	rax, rcx
+		mov	rax, [rax]
+		mov	rcx, [rbp-16]
+		mov	[rcx-400], rax
+	# QUAD 46:     q_param    $21        -          -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-400]
+		push	rax
+	# QUAD 47:     q_call     WRITE      1          (null)     
+
+		call	L1
+		add	rsp, 8
+	# QUAD 48:     q_jmp      14         -          -          
+		jmp	L14
+L15:
+	# QUAD 49:     q_labl     15         -          -          
+L7:
+	# QUAD 50:     q_labl     7          -          -          
+	# EPILOGUE (WRITE_INT)
+		leave	
+		ret	
+L24:			# WRITE_REAL
+	# PROLOGUE (WRITE_REAL)
+		push	rbp
+		mov	rcx, rsp
+		push	[rbp-8]
+		push	rcx
+		mov	rbp, rcx
+		sub	rsp, 120
+	# QUAD 1:     q_param    VAL        -          -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx+16]
+		push	rax
+	# QUAD 2:     q_call     TRUNC      1          $22        
+		call	L2
+		add	rsp, 8
+	# QUAD 3:     q_param    $22        -          -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-40]
+		push	rax
+	# QUAD 4:     q_call     WRITE_INT  1          (null)     
+	       
+		call	L6
+		add	rsp, 8
+	# QUAD 5:     q_param    DOT        -          -          
+		mov	rax, 46
+		push	rax
+	# QUAD 6:     q_call     WRITE      1          (null)     
+
+		call	L1
+		add	rsp, 8
+	# QUAD 7:     q_iload    0          -          $23        
+		mov	rax, 0
+		mov	rcx, [rbp-16]
+		mov	[rcx-48], rax
+	# QUAD 8:     q_iassign  $23        -          I          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-48]
+		mov	rcx, [rbp-16]
+		mov	[rcx-24], rax
+	# QUAD 9:     q_iload    1          -          $24        
+		mov	rax, 1
+		mov	rcx, [rbp-16]
+		mov	[rcx-56], rax
+	# QUAD 10:     q_iassign  $24        -          MULTI      
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-56]
+		mov	rcx, [rbp-16]
+		mov	[rcx-32], rax
+L26:
+	# QUAD 11:     q_labl     26         -          -          
+	# QUAD 12:     q_ilt      I          DIGITS     $25        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-24]
+		mov	rcx, 6
+		cmp	rax, rcx
+		jl	L28
+		mov	rax, 0
+		jmp	L29
+		L28:
+		mov	rax, 1
+		L29:
+		mov	rcx, [rbp-16]
+		mov	[rcx-64], rax
+	# QUAD 13:     q_jmpf     27         $25        -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-64]
+		cmp	rax, 0
+		je	L27
+	# QUAD 14:     q_iload    1          -          $26        
+		mov	rax, 1
+		mov	rcx, [rbp-16]
+		mov	[rcx-72], rax
+	# QUAD 15:     q_iplus    I          $26        $27        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-24]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-72]
+		add	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-80], rax
+	# QUAD 16:     q_iassign  $27        -          I          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-80]
+		mov	rcx, [rbp-16]
+		mov	[rcx-24], rax
+	# QUAD 17:     q_iload    10         -          $28        
+		mov	rax, 10
+		mov	rcx, [rbp-16]
+		mov	[rcx-88], rax
+	# QUAD 18:     q_imult    MULTI      $28        $29        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-32]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-88]
+		imul	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-96], rax
+	# QUAD 19:     q_iassign  $29        -          MULTI      
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-96]
+		mov	rcx, [rbp-16]
+		mov	[rcx-32], rax
+	# QUAD 20:     q_itor     MULTI      -          $31        
+		mov	rcx, [rbp-16]
+		fild	qword ptr [rcx-32]
+		mov	rcx, [rbp-16]
+		fstp	qword ptr [rcx-112]
+	# QUAD 21:     q_rmult    VAL        $31        $32        
+		mov	rcx, [rbp-16]
+		fld	qword ptr [rcx+16]
+		mov	rcx, [rbp-16]
+		fld	qword ptr [rcx-112]
+		fmulp
+		mov	rcx, [rbp-16]
+		fstp	qword ptr [rcx-120]
+	# QUAD 22:     q_param    $32        -          -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-120]
+		push	rax
+	# QUAD 23:     q_call     TRUNC      1          $30        
+		call	L2
+		add	rsp, 8
+	# QUAD 24:     q_iload    10         -          $33        
+		mov	rax, 10
+		mov	rcx, [rbp-16]
+		mov	[rcx-128], rax
+	# QUAD 25:     q_imod     $30        $33        $34        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-104]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-128]
+		cqo
+		idiv	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-136], rdx
+	# QUAD 26:     q_param    $34        -          -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-136]
+		push	rax
+	# QUAD 27:     q_call     WRITE_INT  1          (null)     
+
+		call	L6
+		add	rsp, 8
+	# QUAD 28:     q_jmp      26         -          -          
+		jmp	L26
+L27:
+	# QUAD 29:     q_labl     27         -          -          
+L25:
+	# QUAD 30:     q_labl     25         -          -          
+	# EPILOGUE (WRITE_REAL)
+		leave	
+		ret	
+L30:			# READ_INT
+	# PROLOGUE (READ_INT)
+		push	rbp
+		mov	rcx, rsp
+		push	[rbp-8]
+		push	rcx
+		mov	rbp, rcx
+		sub	rsp, 136
+	# QUAD 1:     q_iload    0          -          $35        
+		mov	rax, 0
+		mov	rcx, [rbp-16]
+		mov	[rcx-40], rax
+	# QUAD 2:     q_iassign  $35        -          ACC        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-40]
+		mov	rcx, [rbp-16]
+		mov	[rcx-24], rax
+	# QUAD 3:     q_call     READ       0          $36        
+		call	L0
+		add	rsp, 8
+	# QUAD 4:     q_iassign  $36        -          C          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-48]
+		mov	rcx, [rbp-16]
+		mov	[rcx-32], rax
+L32:
+	# QUAD 5:     q_labl     32         -          -          
+	# QUAD 6:     q_ilt      C          ASCII0     $37        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-32]
+		mov	rcx, 48
+		cmp	rax, rcx
+		jl	L36
+		mov	rax, 0
+		jmp	L37
+		L36:
+		mov	rax, 1
+		L37:
+		mov	rcx, [rbp-16]
+		mov	[rcx-56], rax
+	# QUAD 7:     q_igt      C          ASCII9     $38        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-32]
+		mov	rcx, 57
+		cmp	rax, rcx
+		jg	L38
+		mov	rax, 0
+		jmp	L39
+		L38:
+		mov	rax, 1
+		L39:
+		mov	rcx, [rbp-16]
+		mov	[rcx-64], rax
+	# QUAD 8:     q_ior      $37        $38        $39        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-56]
+		cmp	rax, 0
+		jne	L40
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-64]
+		cmp	rax, 0
+		jne	L40
+		mov	rax, 0
+		jmp	L41
+		L40:
+		mov	rax, 1
+		L41:
+		mov	rcx, [rbp-16]
+		mov	[rcx-72], rax
+	# QUAD 9:     q_jmpf     33         $39        -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-72]
+		cmp	rax, 0
+		je	L33
+	# QUAD 10:     q_call     READ       0          $40        
+		call	L0
+		add	rsp, 8
+	# QUAD 11:     q_iassign  $40        -          C          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-80]
+		mov	rcx, [rbp-16]
+		mov	[rcx-32], rax
+	# QUAD 12:     q_jmp      32         -          -          
+		jmp	L32
+L33:
+	# QUAD 13:     q_labl     33         -          -          
+L34:
+	# QUAD 14:     q_labl     34         -          -          
+	# QUAD 15:     q_ilt      C          ASCII0     $41        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-32]
+		mov	rcx, 48
+		cmp	rax, rcx
+		jl	L42
+		mov	rax, 0
+		jmp	L43
+		L42:
+		mov	rax, 1
+		L43:
+		mov	rcx, [rbp-16]
+		mov	[rcx-88], rax
+	# QUAD 16:     q_igt      C          ASCII9     $42        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-32]
+		mov	rcx, 57
+		cmp	rax, rcx
+		jg	L44
+		mov	rax, 0
+		jmp	L45
+		L44:
+		mov	rax, 1
+		L45:
+		mov	rcx, [rbp-16]
+		mov	[rcx-96], rax
+	# QUAD 17:     q_ior      $41        $42        $43        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-88]
+		cmp	rax, 0
+		jne	L46
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-96]
+		cmp	rax, 0
+		jne	L46
+		mov	rax, 0
+		jmp	L47
+		L46:
+		mov	rax, 1
+		L47:
+		mov	rcx, [rbp-16]
+		mov	[rcx-104], rax
+	# QUAD 18:     q_inot     $43        -          $44        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-104]
+		cmp	rax, 0
+		je	L48
+		mov	rax, 0
+		jmp	L49
+		L48:
+		mov	rax, 1
+		L49:
+		mov	rcx, [rbp-16]
+		mov	[rcx-112], rax
+	# QUAD 19:     q_jmpf     35         $44        -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-112]
+		cmp	rax, 0
+		je	L35
+	# QUAD 20:     q_iload    10         -          $45        
+		mov	rax, 10
+		mov	rcx, [rbp-16]
+		mov	[rcx-120], rax
+	# QUAD 21:     q_imult    $45        ACC        $46        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-120]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-24]
+		imul	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-128], rax
+	# QUAD 22:     q_iplus    $46        C          $47        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-128]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-32]
+		add	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-136], rax
+	# QUAD 23:     q_iminus   $47        ASCII0     $48        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-136]
+		mov	rcx, 48
+		sub	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-144], rax
+	# QUAD 24:     q_iassign  $48        -          ACC        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-144]
+		mov	rcx, [rbp-16]
+		mov	[rcx-24], rax
+	# QUAD 25:     q_call     READ       0          $49        
+		call	L0
+		add	rsp, 8
+	# QUAD 26:     q_iassign  $49        -          C          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-152]
+		mov	rcx, [rbp-16]
+		mov	[rcx-32], rax
+	# QUAD 27:     q_jmp      34         -          -          
+		jmp	L34
+L35:
+	# QUAD 28:     q_labl     35         -          -          
+	# QUAD 29:     q_ireturn  31         ACC        -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-24]
+		jmp	L31
+L31:
+	# QUAD 30:     q_labl     31         -          -          
+	# EPILOGUE (READ_INT)
+		leave	
+		ret	
+L50:			# READ_REAL
+	# PROLOGUE (READ_REAL)
+		push	rbp
+		mov	rcx, rsp
+		push	[rbp-8]
+		push	rcx
+		mov	rbp, rcx
+		sub	rsp, 272
+	# QUAD 1:     q_iload    0          -          $50        
+		mov	rax, 0
+		mov	rcx, [rbp-16]
+		mov	[rcx-48], rax
+	# QUAD 2:     q_iassign  $50        -          ACC        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-48]
+		mov	rcx, [rbp-16]
+		mov	[rcx-32], rax
+	# QUAD 3:     q_call     READ       0          $51        
+		call	L0
+		add	rsp, 8
+	# QUAD 4:     q_iassign  $51        -          C          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-56]
+		mov	rcx, [rbp-16]
+		mov	[rcx-40], rax
+L52:
+	# QUAD 5:     q_labl     52         -          -          
+	# QUAD 6:     q_ilt      C          ASCII0     $52        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-40]
+		mov	rcx, 48
+		cmp	rax, rcx
+		jl	L60
+		mov	rax, 0
+		jmp	L61
+		L60:
+		mov	rax, 1
+		L61:
+		mov	rcx, [rbp-16]
+		mov	[rcx-64], rax
+	# QUAD 7:     q_igt      C          ASCII9     $53        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-40]
+		mov	rcx, 57
+		cmp	rax, rcx
+		jg	L62
+		mov	rax, 0
+		jmp	L63
+		L62:
+		mov	rax, 1
+		L63:
+		mov	rcx, [rbp-16]
+		mov	[rcx-72], rax
+	# QUAD 8:     q_ior      $52        $53        $54        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-64]
+		cmp	rax, 0
+		jne	L64
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-72]
+		cmp	rax, 0
+		jne	L64
+		mov	rax, 0
+		jmp	L65
+		L64:
+		mov	rax, 1
+		L65:
+		mov	rcx, [rbp-16]
+		mov	[rcx-80], rax
+	# QUAD 9:     q_jmpf     53         $54        -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-80]
+		cmp	rax, 0
+		je	L53
+	# QUAD 10:     q_call     READ       0          $55        
+		call	L0
+		add	rsp, 8
+	# QUAD 11:     q_iassign  $55        -          C          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-88]
+		mov	rcx, [rbp-16]
+		mov	[rcx-40], rax
+	# QUAD 12:     q_jmp      52         -          -          
+		jmp	L52
+L53:
+	# QUAD 13:     q_labl     53         -          -          
+L54:
+	# QUAD 14:     q_labl     54         -          -          
+	# QUAD 15:     q_ilt      C          ASCII0     $56        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-40]
+		mov	rcx, 48
+		cmp	rax, rcx
+		jl	L66
+		mov	rax, 0
+		jmp	L67
+		L66:
+		mov	rax, 1
+		L67:
+		mov	rcx, [rbp-16]
+		mov	[rcx-96], rax
+	# QUAD 16:     q_igt      C          ASCII9     $57        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-40]
+		mov	rcx, 57
+		cmp	rax, rcx
+		jg	L68
+		mov	rax, 0
+		jmp	L69
+		L68:
+		mov	rax, 1
+		L69:
+		mov	rcx, [rbp-16]
+		mov	[rcx-104], rax
+	# QUAD 17:     q_ior      $56        $57        $58        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-96]
+		cmp	rax, 0
+		jne	L70
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-104]
+		cmp	rax, 0
+		jne	L70
+		mov	rax, 0
+		jmp	L71
+		L70:
+		mov	rax, 1
+		L71:
+		mov	rcx, [rbp-16]
+		mov	[rcx-112], rax
+	# QUAD 18:     q_inot     $58        -          $59        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-112]
+		cmp	rax, 0
+		je	L72
+		mov	rax, 0
+		jmp	L73
+		L72:
+		mov	rax, 1
+		L73:
+		mov	rcx, [rbp-16]
+		mov	[rcx-120], rax
+	# QUAD 19:     q_jmpf     55         $59        -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-120]
+		cmp	rax, 0
+		je	L55
+	# QUAD 20:     q_iload    10         -          $60        
+		mov	rax, 10
+		mov	rcx, [rbp-16]
+		mov	[rcx-128], rax
+	# QUAD 21:     q_imult    $60        ACC        $61        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-128]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-32]
+		imul	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-136], rax
+	# QUAD 22:     q_iplus    $61        C          $62        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-136]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-40]
+		add	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-144], rax
+	# QUAD 23:     q_iminus   $62        ASCII0     $63        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-144]
+		mov	rcx, 48
+		sub	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-152], rax
+	# QUAD 24:     q_iassign  $63        -          ACC        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-152]
+		mov	rcx, [rbp-16]
+		mov	[rcx-32], rax
+	# QUAD 25:     q_call     READ       0          $64        
+		call	L0
+		add	rsp, 8
+	# QUAD 26:     q_iassign  $64        -          C          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-160]
+		mov	rcx, [rbp-16]
+		mov	[rcx-40], rax
+	# QUAD 27:     q_jmp      54         -          -          
+		jmp	L54
+L55:
+	# QUAD 28:     q_labl     55         -          -          
+	# QUAD 29:     q_itor     ACC        -          $65        
+		mov	rcx, [rbp-16]
+		fild	qword ptr [rcx-32]
+		mov	rcx, [rbp-16]
+		fstp	qword ptr [rcx-168]
+	# QUAD 30:     q_rassign  $65        -          RES        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-168]
+		mov	rcx, [rbp-16]
+		mov	[rcx-24], rax
+	# QUAD 31:     q_ine      C          DOT        $66        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-40]
+		mov	rcx, 46
+		cmp	rax, rcx
+		jne	L74
+		mov	rax, 0
+		jmp	L75
+		L74:
+		mov	rax, 1
+		L75:
+		mov	rcx, [rbp-16]
+		mov	[rcx-176], rax
+	# QUAD 32:     q_jmpf     56         $66        -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-176]
+		cmp	rax, 0
+		je	L56
+	# QUAD 33:     q_rreturn  51         RES        -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-24]
+		jmp	L51
+L56:
+	# QUAD 34:     q_labl     56         -          -          
+L57:
+	# QUAD 35:     q_labl     57         -          -          
+	# QUAD 36:     q_iload    1          -          $67        
+		mov	rax, 1
+		mov	rcx, [rbp-16]
+		mov	[rcx-184], rax
+	# QUAD 37:     q_iassign  $67        -          ACC        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-184]
+		mov	rcx, [rbp-16]
+		mov	[rcx-32], rax
+	# QUAD 38:     q_call     READ       0          $68        
+		call	L0
+		add	rsp, 8
+	# QUAD 39:     q_iassign  $68        -          C          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-192]
+		mov	rcx, [rbp-16]
+		mov	[rcx-40], rax
+L58:
+	# QUAD 40:     q_labl     58         -          -          
+	# QUAD 41:     q_ilt      C          ASCII0     $69        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-40]
+		mov	rcx, 48
+		cmp	rax, rcx
+		jl	L76
+		mov	rax, 0
+		jmp	L77
+		L76:
+		mov	rax, 1
+		L77:
+		mov	rcx, [rbp-16]
+		mov	[rcx-200], rax
+	# QUAD 42:     q_igt      C          ASCII9     $70        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-40]
+		mov	rcx, 57
+		cmp	rax, rcx
+		jg	L78
+		mov	rax, 0
+		jmp	L79
+		L78:
+		mov	rax, 1
+		L79:
+		mov	rcx, [rbp-16]
+		mov	[rcx-208], rax
+	# QUAD 43:     q_ior      $69        $70        $71        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-200]
+		cmp	rax, 0
+		jne	L80
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-208]
+		cmp	rax, 0
+		jne	L80
+		mov	rax, 0
+		jmp	L81
+		L80:
+		mov	rax, 1
+		L81:
+		mov	rcx, [rbp-16]
+		mov	[rcx-216], rax
+	# QUAD 44:     q_inot     $71        -          $72        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-216]
+		cmp	rax, 0
+		je	L82
+		mov	rax, 0
+		jmp	L83
+		L82:
+		mov	rax, 1
+		L83:
+		mov	rcx, [rbp-16]
+		mov	[rcx-224], rax
+	# QUAD 45:     q_jmpf     59         $72        -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-224]
+		cmp	rax, 0
+		je	L59
+	# QUAD 46:     q_iload    10         -          $73        
+		mov	rax, 10
+		mov	rcx, [rbp-16]
+		mov	[rcx-232], rax
+	# QUAD 47:     q_imult    $73        ACC        $74        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-232]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-32]
+		imul	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-240], rax
+	# QUAD 48:     q_iassign  $74        -          ACC        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-240]
+		mov	rcx, [rbp-16]
+		mov	[rcx-32], rax
+	# QUAD 49:     q_iminus   C          ASCII0     $75        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-40]
+		mov	rcx, 48
+		sub	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-248], rax
+	# QUAD 50:     q_iassign  $75        -          C          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-248]
+		mov	rcx, [rbp-16]
+		mov	[rcx-40], rax
+	# QUAD 51:     q_itor     C          -          $76        
+		mov	rcx, [rbp-16]
+		fild	qword ptr [rcx-40]
+		mov	rcx, [rbp-16]
+		fstp	qword ptr [rcx-256]
+	# QUAD 52:     q_itor     ACC        -          $77        
+		mov	rcx, [rbp-16]
+		fild	qword ptr [rcx-32]
+		mov	rcx, [rbp-16]
+		fstp	qword ptr [rcx-264]
+	# QUAD 53:     q_rdivide  $76        $77        $78        
+		mov	rcx, [rbp-16]
+		fld	qword ptr [rcx-256]
+		mov	rcx, [rbp-16]
+		fld	qword ptr [rcx-264]
+		fdivp
+		mov	rcx, [rbp-16]
+		fstp	qword ptr [rcx-272]
+	# QUAD 54:     q_rplus    RES        $78        $79        
+		mov	rcx, [rbp-16]
+		fld	qword ptr [rcx-24]
+		mov	rcx, [rbp-16]
+		fld	qword ptr [rcx-272]
+		faddp
+		mov	rcx, [rbp-16]
+		fstp	qword ptr [rcx-280]
+	# QUAD 55:     q_rassign  $79        -          RES        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-280]
+		mov	rcx, [rbp-16]
+		mov	[rcx-24], rax
+	# QUAD 56:     q_call     READ       0          $80        
+		call	L0
+		add	rsp, 8
+	# QUAD 57:     q_iassign  $80        -          C          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-288]
+		mov	rcx, [rbp-16]
+		mov	[rcx-40], rax
+	# QUAD 58:     q_jmp      58         -          -          
+		jmp	L58
+L59:
+	# QUAD 59:     q_labl     59         -          -          
+	# QUAD 60:     q_rreturn  51         RES        -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-24]
+		jmp	L51
+L51:
+	# QUAD 61:     q_labl     51         -          -          
+	# EPILOGUE (READ_REAL)
+		leave	
+		ret	
+L84:			# READSEQUENCE
+	# PROLOGUE (READSEQUENCE)
+		push	rbp
+		mov	rcx, rsp
+		push	[rbp-8]
+		push	rcx
+		mov	rbp, rcx
+		sub	rsp, 56
+	# QUAD 1:     q_iload    0          -          $81        
+		mov	rax, 0
+		mov	rcx, [rbp-16]
+		mov	[rcx-32], rax
+	# QUAD 2:     q_iassign  $81        -          I          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-32]
+		mov	rcx, [rbp-16]
+		mov	[rcx-24], rax
+L86:
+	# QUAD 3:     q_labl     86         -          -          
+	# QUAD 4:     q_ilt      I          SIZE       $82        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-24]
+		mov	rcx, 20
+		cmp	rax, rcx
+		jl	L88
+		mov	rax, 0
+		jmp	L89
+		L88:
+		mov	rax, 1
+		L89:
+		mov	rcx, [rbp-16]
+		mov	[rcx-40], rax
+	# QUAD 5:     q_jmpf     87         $82        -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-40]
+		cmp	rax, 0
+		je	L87
+	# QUAD 6:     q_call     READ_INT   0          $83        
+		call	L30
+		add	rsp, 8
+	# QUAD 7:     q_lindex   S          I          $84        
+		mov	rcx, [rbp-8]
+		sub	rcx, 16
+		mov	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-24]
+		imul	rcx, 8
+		sub	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-56], rax
+	# QUAD 8:     q_istore   $83        -          $84        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-48]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-56]
+		mov	[rcx], rax
+	# QUAD 9:     q_iload    1          -          $85        
+		mov	rax, 1
+		mov	rcx, [rbp-16]
+		mov	[rcx-64], rax
+	# QUAD 10:     q_iplus    I          $85        $86        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-24]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-64]
+		add	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-72], rax
+	# QUAD 11:     q_iassign  $86        -          I          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-72]
+		mov	rcx, [rbp-16]
+		mov	[rcx-24], rax
+	# QUAD 12:     q_jmp      86         -          -          
+		jmp	L86
+L87:
+	# QUAD 13:     q_labl     87         -          -          
+L85:
+	# QUAD 14:     q_labl     85         -          -          
+	# EPILOGUE (READSEQUENCE)
+		leave	
+		ret	
+L90:			# WRITESEQUENCE
+	# PROLOGUE (WRITESEQUENCE)
+		push	rbp
+		mov	rcx, rsp
+		push	[rbp-8]
+		push	rcx
+		mov	rbp, rcx
+		sub	rsp, 48
+	# QUAD 1:     q_iload    0          -          $87        
+		mov	rax, 0
+		mov	rcx, [rbp-16]
+		mov	[rcx-32], rax
+	# QUAD 2:     q_iassign  $87        -          I          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-32]
+		mov	rcx, [rbp-16]
+		mov	[rcx-24], rax
+L92:
+	# QUAD 3:     q_labl     92         -          -          
+	# QUAD 4:     q_ilt      I          SIZE       $88        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-24]
+		mov	rcx, 20
+		cmp	rax, rcx
+		jl	L94
+		mov	rax, 0
+		jmp	L95
+		L94:
+		mov	rax, 1
+		L95:
+		mov	rcx, [rbp-16]
+		mov	[rcx-40], rax
+	# QUAD 5:     q_jmpf     93         $88        -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-40]
+		cmp	rax, 0
+		je	L93
+	# QUAD 6:     q_irindex  S          I          $89        
+		mov	rcx, [rbp-8]
+		sub	rcx, 16
+		mov	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-24]
+		imul	rcx, 8
+		sub	rax, rcx
+		mov	rax, [rax]
+		mov	rcx, [rbp-16]
+		mov	[rcx-48], rax
+	# QUAD 7:     q_param    $89        -          -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-48]
+		push	rax
+	# QUAD 8:     q_call     WRITE_INT  1          (null)     
+
+		call	L6
+		add	rsp, 8
+	# QUAD 9:     q_param    SPACE      -          -          
+		mov	rax, 32
+		push	rax
+	# QUAD 10:     q_call     WRITE      1          (null)     
+
+		call	L1
+		add	rsp, 8
+	# QUAD 11:     q_iload    1          -          $90        
+		mov	rax, 1
+		mov	rcx, [rbp-16]
+		mov	[rcx-56], rax
+	# QUAD 12:     q_iplus    I          $90        $91        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-24]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-56]
+		add	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-64], rax
+	# QUAD 13:     q_iassign  $91        -          I          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-64]
+		mov	rcx, [rbp-16]
+		mov	[rcx-24], rax
+	# QUAD 14:     q_jmp      92         -          -          
+		jmp	L92
+L93:
+	# QUAD 15:     q_labl     93         -          -          
+L91:
+	# QUAD 16:     q_labl     91         -          -          
+	# EPILOGUE (WRITESEQUENCE)
+		leave	
+		ret	
+L96:			# QUICKSORT
+	# PROLOGUE (QUICKSORT)
+		push	rbp
+		mov	rcx, rsp
+		push	[rbp-8]
+		push	rcx
+		mov	rbp, rcx
+		sub	rsp, 248
+	# QUAD 1:     q_iassign  L          -          I          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx+16]
+		mov	rcx, [rbp-16]
+		mov	[rcx-24], rax
+	# QUAD 2:     q_iassign  R          -          J          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx+24]
+		mov	rcx, [rbp-16]
+		mov	[rcx-32], rax
+	# QUAD 3:     q_iplus    L          R          $92        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx+16]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx+24]
+		add	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-56], rax
+	# QUAD 4:     q_iload    2          -          $93        
+		mov	rax, 2
+		mov	rcx, [rbp-16]
+		mov	[rcx-64], rax
+	# QUAD 5:     q_idivide  $92        $93        $94        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-56]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-64]
+		cqo
+		idiv	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-72], rax
+	# QUAD 6:     q_irindex  S          $94        $95        
+		mov	rcx, [rbp-8]
+		sub	rcx, 16
+		mov	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-72]
+		imul	rcx, 8
+		sub	rax, rcx
+		mov	rax, [rax]
+		mov	rcx, [rbp-16]
+		mov	[rcx-80], rax
+	# QUAD 7:     q_iassign  $95        -          PIVOT      
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-80]
+		mov	rcx, [rbp-16]
+		mov	[rcx-48], rax
+L98:
+	# QUAD 8:     q_labl     98         -          -          
+	# QUAD 9:     q_igt      I          J          $96        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-24]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-32]
+		cmp	rax, rcx
+		jg	L110
+		mov	rax, 0
+		jmp	L111
+		L110:
+		mov	rax, 1
+		L111:
+		mov	rcx, [rbp-16]
+		mov	[rcx-88], rax
+	# QUAD 10:     q_inot     $96        -          $97        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-88]
+		cmp	rax, 0
+		je	L112
+		mov	rax, 0
+		jmp	L113
+		L112:
+		mov	rax, 1
+		L113:
+		mov	rcx, [rbp-16]
+		mov	[rcx-96], rax
+	# QUAD 11:     q_jmpf     99         $97        -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-96]
+		cmp	rax, 0
+		je	L99
+L100:
+	# QUAD 12:     q_labl     100        -          -          
+	# QUAD 13:     q_irindex  S          I          $98        
+		mov	rcx, [rbp-8]
+		sub	rcx, 16
+		mov	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-24]
+		imul	rcx, 8
+		sub	rax, rcx
+		mov	rax, [rax]
+		mov	rcx, [rbp-16]
+		mov	[rcx-104], rax
+	# QUAD 14:     q_ilt      $98        PIVOT      $99        
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-104]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-48]
+		cmp	rax, rcx
+		jl	L114
+		mov	rax, 0
+		jmp	L115
+		L114:
+		mov	rax, 1
+		L115:
+		mov	rcx, [rbp-16]
+		mov	[rcx-112], rax
+	# QUAD 15:     q_jmpf     101        $99        -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-112]
+		cmp	rax, 0
+		je	L101
+	# QUAD 16:     q_iload    1          -          $100       
+		mov	rax, 1
+		mov	rcx, [rbp-16]
+		mov	[rcx-120], rax
+	# QUAD 17:     q_iplus    I          $100       $101       
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-24]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-120]
+		add	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-128], rax
+	# QUAD 18:     q_iassign  $101       -          I          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-128]
+		mov	rcx, [rbp-16]
+		mov	[rcx-24], rax
+	# QUAD 19:     q_jmp      100        -          -          
+		jmp	L100
+L101:
+	# QUAD 20:     q_labl     101        -          -          
+L102:
+	# QUAD 21:     q_labl     102        -          -          
+	# QUAD 22:     q_irindex  S          J          $102       
+		mov	rcx, [rbp-8]
+		sub	rcx, 16
+		mov	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-32]
+		imul	rcx, 8
+		sub	rax, rcx
+		mov	rax, [rax]
+		mov	rcx, [rbp-16]
+		mov	[rcx-136], rax
+	# QUAD 23:     q_ilt      PIVOT      $102       $103       
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-48]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-136]
+		cmp	rax, rcx
+		jl	L116
+		mov	rax, 0
+		jmp	L117
+		L116:
+		mov	rax, 1
+		L117:
+		mov	rcx, [rbp-16]
+		mov	[rcx-144], rax
+	# QUAD 24:     q_jmpf     103        $103       -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-144]
+		cmp	rax, 0
+		je	L103
+	# QUAD 25:     q_iload    1          -          $104       
+		mov	rax, 1
+		mov	rcx, [rbp-16]
+		mov	[rcx-152], rax
+	# QUAD 26:     q_iminus   J          $104       $105       
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-32]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-152]
+		sub	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-160], rax
+	# QUAD 27:     q_iassign  $105       -          J          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-160]
+		mov	rcx, [rbp-16]
+		mov	[rcx-32], rax
+	# QUAD 28:     q_jmp      102        -          -          
+		jmp	L102
+L103:
+	# QUAD 29:     q_labl     103        -          -          
+	# QUAD 30:     q_iminus   I          J          $106       
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-24]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-32]
+		sub	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-168], rax
+	# QUAD 31:     q_iload    1          -          $107       
+		mov	rax, 1
+		mov	rcx, [rbp-16]
+		mov	[rcx-176], rax
+	# QUAD 32:     q_ilt      $106       $107       $108       
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-168]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-176]
+		cmp	rax, rcx
+		jl	L118
+		mov	rax, 0
+		jmp	L119
+		L118:
+		mov	rax, 1
+		L119:
+		mov	rcx, [rbp-16]
+		mov	[rcx-184], rax
+	# QUAD 33:     q_jmpf     104        $108       -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-184]
+		cmp	rax, 0
+		je	L104
+	# QUAD 34:     q_irindex  S          I          $109       
+		mov	rcx, [rbp-8]
+		sub	rcx, 16
+		mov	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-24]
+		imul	rcx, 8
+		sub	rax, rcx
+		mov	rax, [rax]
+		mov	rcx, [rbp-16]
+		mov	[rcx-192], rax
+	# QUAD 35:     q_iassign  $109       -          T          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-192]
+		mov	rcx, [rbp-16]
+		mov	[rcx-40], rax
+	# QUAD 36:     q_irindex  S          J          $110       
+		mov	rcx, [rbp-8]
+		sub	rcx, 16
+		mov	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-32]
+		imul	rcx, 8
+		sub	rax, rcx
+		mov	rax, [rax]
+		mov	rcx, [rbp-16]
+		mov	[rcx-200], rax
+	# QUAD 37:     q_lindex   S          I          $111       
+		mov	rcx, [rbp-8]
+		sub	rcx, 16
+		mov	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-24]
+		imul	rcx, 8
+		sub	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-208], rax
+	# QUAD 38:     q_istore   $110       -          $111       
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-200]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-208]
+		mov	[rcx], rax
+	# QUAD 39:     q_lindex   S          J          $112       
+		mov	rcx, [rbp-8]
+		sub	rcx, 16
+		mov	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-32]
+		imul	rcx, 8
+		sub	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-216], rax
+	# QUAD 40:     q_istore   T          -          $112       
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-40]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-216]
+		mov	[rcx], rax
+	# QUAD 41:     q_iload    1          -          $113       
+		mov	rax, 1
+		mov	rcx, [rbp-16]
+		mov	[rcx-224], rax
+	# QUAD 42:     q_iplus    I          $113       $114       
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-24]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-224]
+		add	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-232], rax
+	# QUAD 43:     q_iassign  $114       -          I          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-232]
+		mov	rcx, [rbp-16]
+		mov	[rcx-24], rax
+	# QUAD 44:     q_iload    1          -          $115       
+		mov	rax, 1
+		mov	rcx, [rbp-16]
+		mov	[rcx-240], rax
+	# QUAD 45:     q_iminus   J          $115       $116       
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-32]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-240]
+		sub	rax, rcx
+		mov	rcx, [rbp-16]
+		mov	[rcx-248], rax
+	# QUAD 46:     q_iassign  $116       -          J          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-248]
+		mov	rcx, [rbp-16]
+		mov	[rcx-32], rax
+L104:
+	# QUAD 47:     q_labl     104        -          -          
+L105:
+	# QUAD 48:     q_labl     105        -          -          
+	# QUAD 49:     q_jmp      98         -          -          
+		jmp	L98
+L99:
+	# QUAD 50:     q_labl     99         -          -          
+	# QUAD 51:     q_igt      J          L          $117       
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-32]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx+16]
+		cmp	rax, rcx
+		jg	L120
+		mov	rax, 0
+		jmp	L121
+		L120:
+		mov	rax, 1
+		L121:
+		mov	rcx, [rbp-16]
+		mov	[rcx-256], rax
+	# QUAD 52:     q_jmpf     106        $117       -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-256]
+		cmp	rax, 0
+		je	L106
+	# QUAD 53:     q_param    J          -          -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-32]
+		push	rax
+	# QUAD 54:     q_param    L          -          -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx+16]
+		push	rax
+	# QUAD 55:     q_call     QUICKSORT  2          (null)     
+
+		call	L96
+		add	rsp, 8
+L106:
+	# QUAD 56:     q_labl     106        -          -          
+L107:
+	# QUAD 57:     q_labl     107        -          -          
+	# QUAD 58:     q_igt      R          I          $118       
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx+24]
+		mov	rcx, [rbp-16]
+		mov	rcx, [rcx-24]
+		cmp	rax, rcx
+		jg	L122
+		mov	rax, 0
+		jmp	L123
+		L122:
+		mov	rax, 1
+		L123:
+		mov	rcx, [rbp-16]
+		mov	[rcx-264], rax
+	# QUAD 59:     q_jmpf     108        $118       -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-264]
+		cmp	rax, 0
+		je	L108
+	# QUAD 60:     q_param    R          -          -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx+24]
+		push	rax
+	# QUAD 61:     q_param    I          -          -          
+		mov	rcx, [rbp-16]
+		mov	rax, [rcx-24]
+		push	rax
+	# QUAD 62:     q_call     QUICKSORT  2          (null)     
+
+		call	L96
+		add	rsp, 8
+L108:
+	# QUAD 63:     q_labl     108        -          -          
+L109:
+	# QUAD 64:     q_labl     109        -          -          
+L97:
+	# QUAD 65:     q_labl     97         -          -          
+	# EPILOGUE (QUICKSORT)
+		leave	
+		ret	
+L3:			# QSORT
+	# PROLOGUE (QSORT)
+		push	rbp
+		mov	rcx, rsp
+		push	rcx
+		mov	rbp, rcx
+		sub	rsp, 176
+	# QUAD 1:     q_call     READSEQUENCE0          (null)     
+
+		call	L84
+		add	rsp, 8
+	# QUAD 2:     q_iload    19         -          $119       
+		mov	rax, 19
+		mov	rcx, [rbp-8]
+		mov	[rcx-176], rax
+	# QUAD 3:     q_param    $119       -          -          
+		mov	rcx, [rbp-8]
+		mov	rax, [rcx-176]
+		push	rax
+	# QUAD 4:     q_iload    0          -          $120       
+		mov	rax, 0
+		mov	rcx, [rbp-8]
+		mov	[rcx-184], rax
+	# QUAD 5:     q_param    $120       -          -          
+		mov	rcx, [rbp-8]
+		mov	rax, [rcx-184]
+		push	rax
+	# QUAD 6:     q_call     QUICKSORT  2          (null)     
+
+		call	L96
+		add	rsp, 8
+	# QUAD 7:     q_call     WRITESEQUENCE0          (null)     
+
+		call	L90
+		add	rsp, 8
+L124:
+	# QUAD 8:     q_labl     124        -          -          
+	# EPILOGUE (QSORT)
+		leave	
+		ret	
