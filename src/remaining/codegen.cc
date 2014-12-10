@@ -213,8 +213,11 @@ void code_generator::fetch_float(sym_index sym_p)
     else {
       value = const_sym->const_value.ival;
     }
-    out << "\t\t" << "mov" << "\t" << reg[RAX] << ", " << value << endl;  
-    out << "\t\t" << "fld" << "\t" << "qword ptr [" << reg[RAX] << "]" << endl; 
+    out << "\t\t" << "mov" << "\t" << reg[RCX] << ", " << value << endl;  
+    out << "\t\t" << "sub" << "\t" << "rsp" << ", " << STACK_WIDTH << endl;
+    out << "\t\t" << "mov" << "\t[" << "rsp" << "], " << reg[RCX] << endl;
+    out << "\t\t" << "fld" << "\t" << "qword ptr [" << "rsp" << "]" << endl;
+    out << "\t\t" << "add" << "\t" << "rsp" << ", " << STACK_WIDTH << endl;  
   }
   else {
     int level;
@@ -223,12 +226,12 @@ void code_generator::fetch_float(sym_index sym_p)
     //Set reg[dest] to frame_start of level
     frame_address(level, RCX);
     if(offset > 0) {
-      out << "\t\t" << "mov" << "\t" << reg[RAX] << ", [" << reg[RCX] << "+" << offset << "]" << endl;
-      out << "\t\t" << "fld" << "\t" << "qword ptr [" << reg[RAX] << "]" << endl; 
+      // out << "\t\t" << "mov" << "\t" << reg[RAX] << ", [" << reg[RCX] << "+" << offset << "]" << endl;
+      out << "\t\t" << "fld" << "\t" << "qword ptr [" << reg[RCX] << "+" << offset << "]" << endl; 
     }
     else {
-      out << "\t\t" << "mov" << "\t" << reg[RAX] << ", [" << reg[RCX] << offset << "]" << endl;
-      out << "\t\t" << "fld" << "\t" << "qword ptr [" << reg[RAX] << "]" << endl; 
+      //  out << "\t\t" << "mov" << "\t" << reg[RAX] << ", [" << reg[RCX] << offset << "]" << endl;
+      out << "\t\t" << "fld" << "\t" << "qword ptr [" << reg[RCX] << offset << "]" << endl; 
     }
   }
 }
@@ -259,10 +262,10 @@ void code_generator::store_float(sym_index sym_p)
   find(sym_p, &level, &offset); 
   frame_address(level, RCX);
   if(offset > 0) {
-    out << "\t\t" << "fstp" << "\t" << "dword ptr [rcx"<< "+" << offset << "]"<< endl;
+    out << "\t\t" << "fstp" << "\t" << "qword ptr [rcx"<< "+" << offset << "]"<< endl;
   }
   else {
-    out << "\t\t" << "fstp" << "\t" << "dword ptr [rcx" << offset << "]" << endl;
+    out << "\t\t" << "fstp" << "\t" << "qword ptr [rcx" << offset << "]" << endl;
   }
 }
 
