@@ -1,10 +1,3 @@
-/*
-TODO
-- Should we do ieee() on float somewhere ?
-- Can we just use any register we want for temporary storage in our functions?
-- USE THE T-flag
-*/
-
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -119,16 +112,6 @@ void code_generator::prologue(symbol *new_env)
     out << "\t\t" <<"push" << "\t" << "rcx" << endl;
     out << "\t\t" <<"mov" << "\t" << "rbp" << ", " << "rcx" << endl;
     out << "\t\t" <<"sub" << "\t" << "rsp" << ", " << ar_size << endl;
-    
-       /*
-      save return address (the address from where the call was made
-      prev_rbp (prev frame) = rbp;
-      push prev_rbp to stack
-      push main' rbp #can be handles with the one below.
-      push all frames rpb in current scope (except for main) aka displays 
-      
-     */
-    
     out << flush;
 }
 
@@ -160,14 +143,11 @@ void code_generator::find(sym_index sym_p, int *level, int *offset)
   
   if(sym->tag == SYM_ARRAY) {
     *offset = -((*level + 1) * STACK_WIDTH) - sym->offset;
-    //*offset -= sym->offset; // (a_sym->array_cardinality * sym_tab->get_size(a_sym->type));
   }
   else if(sym->tag == SYM_VAR) {
     *offset = -(((*level) + 1) * STACK_WIDTH) - sym->offset;
-    //*offset -= sym->offset;
   }
   else if(sym->tag == SYM_PARAM) {
-    //*offset = block_arg_offset[*level];
     int size = sym->get_parameter_symbol()->size;
     *offset = STACK_WIDTH + sym->offset + size;
   }
@@ -258,46 +238,31 @@ void code_generator::store(register_type src, sym_index sym_p)
 {
     /* Your code here */
   
-  //out << "\t\t" << "fld" << "\t" << reg[src] << endl;
   int level;
   int offset;
   find(sym_p, &level, &offset); 
-  /*register_type dst;
-  if(src == RAX) {
-    dst = RCX;
-  }
-  else {
-    dst = RAX;
-    }*/
   frame_address(level, RCX);
 
   if(offset > 0) {
     out << "\t\t" << "mov" << "\t" << "[" << reg[RCX] << "+" << offset << "], " << reg[src] << endl; 
-    //out << "\t\t" << "fstp" << "\t[" << reg[src] << "+" << offset << "]" << endl;
   }
   else {
     out << "\t\t" << "mov" << "\t" << "[" << reg[RCX] << offset << "], " << reg[src] << endl; 
-    //out << "\t\t" << "fstp" << "\t[" << reg[src] << offset << "]" << endl;
   }
 }
 
 void code_generator::store_float(sym_index sym_p)
 {
-    /* Your code here */
+  /* Your code here */
   int level;
   int offset;
   find(sym_p, &level, &offset); 
   frame_address(level, RCX);
   if(offset > 0) {
-    out << "\t\t" << "fstp" << "\t" << "ST(0)" << endl;// << "+" << offset << "]" << endl;
-    out << "\t\t" << "mov" << "\t"  << reg[RCX] << ", " << "res" << endl; 
-    store(RCX, sym_p);
+    out << "\t\t" << "fstp" << "\t" << "dword ptr [rcx"<< "+" << offset << "]"<< endl;
   }
   else {
-    out << "\t\t" << "fstp" << "\t" << "ST(0)" << endl; //offset << "]" << endl;
-    //out << "\t\t" << "mov" << "\t[" << reg[RCX] << offset << "], " << "res" << endl; 
-    out << "\t\t" << "mov" << "\t"  << reg[RCX] << ", " << "res" << endl; 
-    store(RCX, sym_p);
+    out << "\t\t" << "fstp" << "\t" << "dword ptr [rcx" << offset << "]" << endl;
   }
 }
 
@@ -667,10 +632,7 @@ void code_generator::expand(quad_list *q_list)
 
         case q_param:
             /* Your code here */
-	  //sym_index type = sym_tab->get_symbol_type(q->sym1);
-	  
 	  fetch(q->sym1, RAX);
-	  //out << "\t\t" << "mov" << "\t" << "rax" << ", " << sym_tab->get_size(type) << endl; 
 	  out << "\t\t" << "push" << "\t" << "rax" << endl;
 	  break;
 

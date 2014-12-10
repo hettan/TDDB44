@@ -125,7 +125,7 @@ program         : prog_decl subprog_part comp_stmt T_DOT
                 {
 
                     symbol *env = sym_tab->get_symbol($1->sym_p);
-
+                    
                     // The status variables here depend on what flags were
                     // passed to the compiler. See the 'diesel' script for
                     // more information.
@@ -688,6 +688,7 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                 }
                 | T_RETURN error
                 {
+                  yyerror("Return error");
 		  $$ = NULL;
                 }
                 | T_RETURN
