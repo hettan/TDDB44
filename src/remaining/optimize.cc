@@ -287,13 +287,13 @@ fold_value ast_optimizer::get_constant_value(ast_expression *node) {
     f_value.value.rval = node->get_ast_real()->value;
     f_value.type = real_type;
   }
-
+  /*
   else if (node->tag == AST_CAST){
     fold_value cast_value = get_constant_value(node->get_ast_cast()->expr);
     if (cast_value.type != void_type){
 	f_value = cast_value;
     }
-  }
+    }*/
   return f_value;
 }
 

@@ -423,9 +423,10 @@ sym_index ast_functioncall::generate_quads(quad_list &q)
     USE_Q;
     /* Your code here */
     int param_counter = 0;
+    sym_index addr = sym_tab->gen_temp_var(type);
     generate_param_list(q, parameter_list, &param_counter);
     sym_index type = sym_tab->get_symbol_type(id->sym_p);
-    sym_index addr = sym_tab->gen_temp_var(type);
+    
     q += new quadruple(q_call, id->sym_p, param_counter, addr);
     
     return addr;
