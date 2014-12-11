@@ -646,16 +646,14 @@ void code_generator::expand(quad_list *q_list)
 	  if(q->sym3 == NULL_SYM) {
 	    procedure_symbol *proc_sym = sym->get_procedure_symbol();
 	    out << "\t\t" << "call" << "\t" << "L" << proc_sym->label_nr << endl;
-	    out << "\t\t" << "add" << "\t" << "rsp" << ", " << STACK_WIDTH*q->sym2 << endl;
 	  }
 	  //function
 	  else {
 	    function_symbol *func_sym = sym->get_function_symbol();
 	    out << "\t\t" << "call" << "\t" << "L" << func_sym->label_nr << endl;
 	    store(RAX, q->sym3); 
-	    out << "\t\t" << "add" << "\t" << "rsp" << ", " << 0 << endl;
 	  }
-       	  
+       	    out << "\t\t" << "add" << "\t" << "rsp" << ", " << STACK_WIDTH*q->sym2 << endl;
 	  break;
         }
         case q_rreturn:
