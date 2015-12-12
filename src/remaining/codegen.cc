@@ -653,7 +653,7 @@ void code_generator::expand(quad_list *q_list)
 	    out << "\t\t" << "call" << "\t" << "L" << func_sym->label_nr << endl;
 	    store(RAX, q->sym3); 
 	  }
-       	    out << "\t\t" << "add" << "\t" << "rsp" << ", " << STACK_WIDTH*q->sym2 << endl;
+	  out << "\t\t" << "add" << "\t" << "rsp" << ", " << STACK_WIDTH*q->sym2 << endl;
 	  break;
         }
         case q_rreturn:
